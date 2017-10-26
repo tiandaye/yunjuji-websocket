@@ -8,5 +8,13 @@
     ],
     "require": {
     	"matyhtf/swoole_framework": "dev-master"
-    }
+    },
+    "autoload": {
+        "psr-4": {
+            "Yunjuji\\WebSocket\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
 }

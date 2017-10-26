@@ -4,7 +4,7 @@
  * @Author: admin
  * @Date:   2017-10-26 14:38:00
  * @Last Modified by:   admin
- * @Last Modified time: 2017-10-26 14:49:21
+ * @Last Modified time: 2017-10-26 15:05:40
  */
 /**
  * websocket-服务端配置
@@ -40,7 +40,7 @@ $config['swoole'] = array(
  */
 $config['storage'] = array(
     'history_num' => 100,
-    'master' = array(
+    'master' => array(
 	    'host' => '127.0.0.1',
 	    'port' => '6379'
 	)
