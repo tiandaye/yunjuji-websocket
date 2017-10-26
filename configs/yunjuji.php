@@ -4,7 +4,7 @@
  * @Author: admin
  * @Date:   2017-10-26 14:38:00
  * @Last Modified by:   admin
- * @Last Modified time: 2017-10-26 15:05:40
+ * @Last Modified time: 2017-10-26 16:31:43
  */
 /**
  * websocket-服务端配置
@@ -14,12 +14,12 @@ $config['server'] = array(
 	    //监听的HOST
 	    'host'   => '0.0.0.0',
 	    //监听的端口
-	    'port'   => '9503',
+	    'port'   => '9501',
 	),
     //WebSocket的URL地址，供浏览器使用的
-    'url'    => 'ws://im.swoole.com:9503',
+    'url'    => 'ws://url:9501',
     //用于Comet跨域，必须设置为html所在的URL
-    'origin' => 'http://im.swoole.com:8888',
+    'origin' => 'http://url:8888',
 );
 
 /**
