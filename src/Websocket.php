@@ -81,9 +81,8 @@ class WebSocket
         $this->config = $config;
         $this->host   = $config['server']['master']['host'];
         $this->port = $config['server']['master']['port'];
-        $this->init();
         $this->storage = new Storage($config['storage']);
-        var_dump($this->storage);
+        $this->init();
     }
 
     /**
@@ -124,7 +123,6 @@ class WebSocket
     {
         $avatar   = $this->avatars[array_rand($this->avatars)];
         $nickname = $this->nicknames[array_rand($this->nicknames)];
-        echo "fd:" . $req->fd;
         // 映射存到redis
         $this->storage->login($req->fd, [
             'id'       => $req->fd,
