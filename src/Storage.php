@@ -4,7 +4,7 @@
  * @Author: admin
  * @Date:   2017-10-26 11:38:13
  * @Last Modified by:   admin
- * @Last Modified time: 2017-10-26 14:29:38
+ * @Last Modified time: 2017-10-26 16:09:26
  */
 namespace Yunjuji\WebSocket;
 
@@ -35,7 +35,7 @@ class Storage
         // $this->config = $config;
         
         $this->config = $config;
-        $this->redis = new Redis();
+        $this->redis = new \Redis();
         $this->redis->connect($config['master']['host'], $config['master']['port']);
         $this->redis->delete(self::PREFIX . ':online');
     }

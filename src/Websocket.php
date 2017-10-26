@@ -90,14 +90,14 @@ class WebSocket
      */
     public function init()
     {
-        $this->table = new swoole_table(1024);
+        $this->table = new \swoole_table(1024);
         $this->table->column('id', swoole_table::TYPE_INT, 4); //1,2,4,8
         $this->table->column('avatar', swoole_table::TYPE_STRING, 1024);
         $this->table->column('nickname', swoole_table::TYPE_STRING, 64);
         $this->table->create();
 
         // 通过构造函数创建 `swoole_server` 对象
-        $this->server = $server = new swoole_websocket_server($this->host, $this->port);
+        $this->server = $server = new \swoole_websocket_server($this->host, $this->port);
         // 调用set函数设置 `swoole_server` 的相关配置选项
         $server->set([
             'task_worker_num' => 4,
