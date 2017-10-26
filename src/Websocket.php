@@ -91,12 +91,6 @@ class WebSocket
      */
     public function init()
     {
-        // $this->table = new \swoole_table(1024);
-        // $this->table->column('id', \swoole_table::TYPE_INT, 4); //1,2,4,8
-        // $this->table->column('avatar', \swoole_table::TYPE_STRING, 1024);
-        // $this->table->column('nickname', \swoole_table::TYPE_STRING, 64);
-        // $this->table->create();
-
         // 通过构造函数创建 `swoole_server` 对象
         $this->server = $server = new \swoole_websocket_server($this->host, $this->port);
         // 调用set函数设置 `swoole_server` 的相关配置选项
@@ -173,51 +167,6 @@ class WebSocket
             'except' => [$req->fd],
             'data'   => $msg,
         ]);
-
-        // $avatar   = $this->avatars[array_rand($this->avatars)];
-        // $nickname = $this->nicknames[array_rand($this->nicknames)];
-        // $this->table->set($req->fd, [
-        //     'id'       => $req->fd,
-        //     'avatar'   => $avatar,
-        //     'nickname' => $nickname,
-        // ]);
-        // // init selfs data
-        // $userMsg = $this->buildMsg([
-        //     'id'       => $req->fd,
-        //     'avatar'   => $avatar,
-        //     'nickname' => $nickname,
-        //     'count'    => count($this->table),
-        // ], self::INIT_SELF_TYPE);
-        // $this->server->task([
-        //     'to'     => [$req->fd],
-        //     'except' => [],
-        //     'data'   => $userMsg,
-        // ]);
-
-        // // init others data
-        // $others = [];
-        // foreach ($this->table as $row) {
-        //     $others[] = $row;
-        // }
-        // $otherMsg = $this->buildMsg($others, self::INIT_OTHER_TYPE);
-        // $this->server->task([
-        //     'to'     => [$req->fd],
-        //     'except' => [],
-        //     'data'   => $otherMsg,
-        // ]);
-
-        // //broadcast a user is online
-        // $msg = $this->buildMsg([
-        //     'id'       => $req->fd,
-        //     'avatar'   => $avatar,
-        //     'nickname' => $nickname,
-        //     'count'    => count($this->table),
-        // ], self::CONNECT_TYPE);
-        // $this->server->task([
-        //     'to'     => [],
-        //     'except' => [$req->fd],
-        //     'data'   => $msg,
-        // ]);
     }
 
     /**
@@ -229,6 +178,7 @@ class WebSocket
     public function message(\swoole_websocket_server $server, \swoole_websocket_frame $frame)
     {
         $receive = json_decode($frame->data, true);
+        var_dump($receive);
         $msg     = $this->buildMsg($receive, self::MESSAGE_TYPE);
         $task    = [
             'to'     => [],
@@ -259,17 +209,6 @@ class WebSocket
             'except' => [$fd],
             'data'   => $msg,
         ]);
-
-        // $this->table->del($fd);
-        // $msg = $this->buildMsg([
-        //     'id'    => $fd,
-        //     'count' => count($this->table),
-        // ], self::DISCONNECT_TYPE);
-        // $this->server->task([
-        //     'to'     => [],
-        //     'except' => [$fd],
-        //     'data'   => $msg,
-        // ]);
     }
 
     /**
