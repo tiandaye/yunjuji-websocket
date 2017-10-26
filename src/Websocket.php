@@ -90,11 +90,11 @@ class WebSocket
      */
     public function init()
     {
-        $this->table = new \swoole_table(1024);
-        $this->table->column('id', \swoole_table::TYPE_INT, 4); //1,2,4,8
-        $this->table->column('avatar', \swoole_table::TYPE_STRING, 1024);
-        $this->table->column('nickname', \swoole_table::TYPE_STRING, 64);
-        $this->table->create();
+        // $this->table = new \swoole_table(1024);
+        // $this->table->column('id', \swoole_table::TYPE_INT, 4); //1,2,4,8
+        // $this->table->column('avatar', \swoole_table::TYPE_STRING, 1024);
+        // $this->table->column('nickname', \swoole_table::TYPE_STRING, 64);
+        // $this->table->create();
 
         // 通过构造函数创建 `swoole_server` 对象
         $this->server = $server = new \swoole_websocket_server($this->host, $this->port);
@@ -122,7 +122,8 @@ class WebSocket
     {
         $avatar   = $this->avatars[array_rand($this->avatars)];
         $nickname = $this->nicknames[array_rand($this->nicknames)];
-        $this->table->set($req->fd, [
+        // 映射存到redis
+        $this->storage->login($req->fd, [
             'id'       => $req->fd,
             'avatar'   => $avatar,
             'nickname' => $nickname,
@@ -132,7 +133,7 @@ class WebSocket
             'id'       => $req->fd,
             'avatar'   => $avatar,
             'nickname' => $nickname,
-            'count'    => count($this->table),
+            'count'    => count($this->storage->getUsers($server->connections)),
         ], self::INIT_SELF_TYPE);
         $this->server->task([
             'to'     => [$req->fd],
@@ -142,7 +143,7 @@ class WebSocket
 
         // init others data
         $others = [];
-        foreach ($this->table as $row) {
+        foreach ($server->connections as $row) {
             $others[] = $row;
         }
         $otherMsg = $this->buildMsg($others, self::INIT_OTHER_TYPE);
@@ -157,13 +158,58 @@ class WebSocket
             'id'       => $req->fd,
             'avatar'   => $avatar,
             'nickname' => $nickname,
-            'count'    => count($this->table),
+            'count'    => count($this->storage->getUsers($server->connections)),
         ], self::CONNECT_TYPE);
         $this->server->task([
             'to'     => [],
             'except' => [$req->fd],
             'data'   => $msg,
         ]);
+
+        // $avatar   = $this->avatars[array_rand($this->avatars)];
+        // $nickname = $this->nicknames[array_rand($this->nicknames)];
+        // $this->table->set($req->fd, [
+        //     'id'       => $req->fd,
+        //     'avatar'   => $avatar,
+        //     'nickname' => $nickname,
+        // ]);
+        // // init selfs data
+        // $userMsg = $this->buildMsg([
+        //     'id'       => $req->fd,
+        //     'avatar'   => $avatar,
+        //     'nickname' => $nickname,
+        //     'count'    => count($this->table),
+        // ], self::INIT_SELF_TYPE);
+        // $this->server->task([
+        //     'to'     => [$req->fd],
+        //     'except' => [],
+        //     'data'   => $userMsg,
+        // ]);
+
+        // // init others data
+        // $others = [];
+        // foreach ($this->table as $row) {
+        //     $others[] = $row;
+        // }
+        // $otherMsg = $this->buildMsg($others, self::INIT_OTHER_TYPE);
+        // $this->server->task([
+        //     'to'     => [$req->fd],
+        //     'except' => [],
+        //     'data'   => $otherMsg,
+        // ]);
+
+        // //broadcast a user is online
+        // $msg = $this->buildMsg([
+        //     'id'       => $req->fd,
+        //     'avatar'   => $avatar,
+        //     'nickname' => $nickname,
+        //     'count'    => count($this->table),
+        // ], self::CONNECT_TYPE);
+        // $this->server->task([
+        //     'to'     => [],
+        //     'except' => [$req->fd],
+        //     'data'   => $msg,
+        // ]);
     }
 
     /**
@@ -195,16 +241,27 @@ class WebSocket
      */
     public function close(\swoole_websocket_server $server, $fd)
     {
-        $this->table->del($fd);
+        $this->storage->logout($fd);
         $msg = $this->buildMsg([
             'id'    => $fd,
-            'count' => count($this->table),
+            'count' => count($server->connections),
         ], self::DISCONNECT_TYPE);
         $this->server->task([
             'to'     => [],
             'except' => [$fd],
             'data'   => $msg,
         ]);
+
+        // $this->table->del($fd);
+        // $msg = $this->buildMsg([
+        //     'id'    => $fd,
+        //     'count' => count($this->table),
+        // ], self::DISCONNECT_TYPE);
+        // $this->server->task([
+        //     'to'     => [],
+        //     'except' => [$fd],
+        //     'data'   => $msg,
+        // ]);
     }
 
     /**
@@ -216,13 +273,16 @@ class WebSocket
      * @return [type]          [description]
      */
     public function task($server, $task_id, $from_id, $data)
-    {
+    {   
+        // 广播
         $clients = $server->connections;
+        // 组播或点播
         if (count($data['to']) > 0) {
             $clients = $data['to'];
         }
         foreach ($clients as $fd) {
             if (!in_array($fd, $data['except'])) {
+                // 服务端往客户端发送消息
                 $this->server->push($fd, $data['data']);
             }
         }

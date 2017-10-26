@@ -4,7 +4,7 @@
  * @Author: admin
  * @Date:   2017-10-26 11:38:13
  * @Last Modified by:   admin
- * @Last Modified time: 2017-10-26 16:09:26
+ * @Last Modified time: 2017-10-26 17:03:25
  */
 namespace Yunjuji\WebSocket;
 
@@ -37,6 +37,7 @@ class Storage
         $this->config = $config;
         $this->redis = new \Redis();
         $this->redis->connect($config['master']['host'], $config['master']['port']);
+        // 删除指定的键
         $this->redis->delete(self::PREFIX . ':online');
     }
 
@@ -48,7 +49,9 @@ class Storage
      */
     public function login($client_id, $info)
     {
+        // 设置 `key` 和 `value` 的值
         $this->redis->set(self::PREFIX . ':client:' . $client_id, json_encode($info));
+        // 为一个 `Key` 添加一个值。如果这个值已经在这个 `Key` 中，则返回 `FALSE`
         $this->redis->sAdd(self::PREFIX . ':online', $client_id);
     }
 
@@ -59,7 +62,10 @@ class Storage
      */
     public function logout($client_id)
     {
+        // 删除 `key`，支持数组批量删除【返回删除个数】
+        // $redis->delete($key_str,$key2,$key3);//删除keys,[del_num]
         $this->redis->del(self::PREFIX . ':client:' . $client_id);
+        // 删除 `Key` 中指定的 `value` 值
         $this->redis->sRemove(self::PREFIX . ':online', $client_id);
     }
 
@@ -69,6 +75,7 @@ class Storage
      */
     public function getOnlineUsers()
     {
+        // 返回集合的内容
         return $this->redis->sMembers(self::PREFIX . ':online');
     }
 
@@ -84,6 +91,7 @@ class Storage
         foreach ($users as $v) {
             $keys[] = self::PREFIX . ':client:' . $v;
         }
+        // 返回所查询键的值
         $info = $this->redis->mget($keys);
         foreach ($info as $v) {
             $ret[] = json_decode($v, true);
@@ -98,6 +106,7 @@ class Storage
      */
     public function getUser($userid)
     {
+        // 获取key [value]
         $ret  = $this->redis->get(self::PREFIX . ':client:' . $userid);
         $info = json_decode($ret, true);
         return $info;
@@ -110,6 +119,7 @@ class Storage
      */
     public function exists($userid)
     {
+        // 验证指定的键是否存在
         return $this->redis->exists(self::PREFIX . ':client:' . $userid);
     }
 
