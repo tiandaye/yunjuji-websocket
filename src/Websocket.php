@@ -69,6 +69,7 @@ class WebSocket
     private $host;
     private $port;
     private $config;
+    private $storage;
 
     /**
      * [__construct description]
