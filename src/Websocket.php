@@ -83,6 +83,7 @@ class WebSocket
         $this->port = $config['server']['master']['port'];
         $this->init();
         $this->storage = new Storage($config['storage']);
+        var_dump($storage);
     }
 
     /**
