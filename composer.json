@@ -1,0 +1,12 @@
+{
+    "name": "admin/yunjuji-websocket",
+    "authors": [
+        {
+            "name": "tiandaye",
+            "email": "q408596288@vip.qq.com"
+        }
+    ],
+    "require": {
+    	"matyhtf/swoole_framework": "dev-master"
+    }
+}
