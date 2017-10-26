@@ -124,12 +124,20 @@ class WebSocket
     {
         $avatar   = $this->avatars[array_rand($this->avatars)];
         $nickname = $this->nicknames[array_rand($this->nicknames)];
+        echo "fd:" . $req->fd;
         // 映射存到redis
         $this->storage->login($req->fd, [
             'id'       => $req->fd,
             'avatar'   => $avatar,
             'nickname' => $nickname,
         ]);
+//         $resMsg = array(
+//             'cmd' => 'login',
+//             'fd' => $client_id,
+//             'name' => $info['name'],
+//             'avatar' => $info['avatar'],
+//         );
+
         // init selfs data
         $userMsg = $this->buildMsg([
             'id'       => $req->fd,
