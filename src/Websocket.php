@@ -66,6 +66,7 @@ class WebSocket
         '沉淀', '暖寄归人', '厌世症i', '难免心酸°', '過客。', '昔日餘光。', '独特', '有爱就有恨', '共度余生', '忆七年', '单人旅行', '何日许我红装', '醉落夕风',
     ];
     private $server;
+    private $adminServer;
     private $host;
     private $port;
     private $config;
@@ -105,6 +106,17 @@ class WebSocket
         // 开启 `task` , 必须要有这两个函数。这两个回调函数分别用于执行 `Task` 任务和处理 `Task` 任务的返回结果
         $server->on('task', [$this, 'task']);
         $server->on('finish', [$this, 'finish']);
+
+        // 多开启一个websocket服务, 端口不一样
+        $this->adminServer = $server->listen('0.0.0.0', 9502, SWOOLE_TCP);
+        $this->adminServer->on('handshake', [$this, 'adminHandshake']);
+        $this->adminServer->on('open', [$this, 'open']);
+        $this->adminServer->on('message', [$this, 'message']);
+        $this->adminServer->on('close', [$this, 'close']);
+        // 开启 `task` , 必须要有这两个函数。这两个回调函数分别用于执行 `Task` 任务和处理 `Task` 任务的返回结果
+        $this->adminServer->on('task', [$this, 'task']);
+        $this->adminServer->on('finish', [$this, 'finish']);
+
         $server->start();
     }
 
