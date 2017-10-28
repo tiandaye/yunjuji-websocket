@@ -98,6 +98,7 @@ class WebSocket
             'task_worker_num' => 4,
         ]);
         // 调用 `on` 函数设置相关回调函数
+        $server->on('handshake', [$this, 'handshake']);
         $server->on('open', [$this, 'open']);
         $server->on('message', [$this, 'message']);
         $server->on('close', [$this, 'close']);
@@ -108,13 +109,70 @@ class WebSocket
     }
 
     /**
-     * [open description]
+     * [handshake `WebSocket` 建立连接后进行握手, 设置onHandShake回调函数后不会再触发 `onOpen` 事件，需要应用代码自行处理]
+     * @param  \swoole_http_request  $request  [description]
+     * @param  \swoole_http_response $response [description]
+     * @return [type]                          [`onHandShake` 函数必须返回 `true` 表示握手成功，返回其他值表示握手失败]
+     */
+    public function handshake(\swoole_http_request $request, \swoole_http_response $response) 
+    {
+        // 打印日志
+        echo "server: handshake success with fd{$req->fd}\n";
+
+        // print_r( $request->header );
+        // if (如果不满足我某些自定义的需求条件，那么返回end输出，返回false，握手失败) {
+        //    $response->end();
+        //     return false;
+        // }
+
+        // websocket握手连接算法验证
+        $secWebSocketKey = $request->header['sec-websocket-key'];
+        $patten = '#^[+/0-9A-Za-z]{21}[AQgw]==$#';
+        if (0 === preg_match($patten, $secWebSocketKey) || 16 !== strlen(base64_decode($secWebSocketKey))) {
+            $response->end();
+            return false;
+        }
+        echo $request->header['sec-websocket-key'];
+        $key = base64_encode(sha1(
+            $request->header['sec-websocket-key'] . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11',
+            true
+        ));
+
+        $headers = [
+            'Upgrade' => 'websocket',
+            'Connection' => 'Upgrade',
+            'Sec-WebSocket-Accept' => $key,
+            'Sec-WebSocket-Version' => '13',
+        ];
+
+        // WebSocket connection to 'ws://127.0.0.1:9502/'
+        // failed: Error during WebSocket handshake:
+        // Response must not include 'Sec-WebSocket-Protocol' header if not present in request: websocket
+        if (isset($request->header['sec-websocket-protocol'])) {
+            $headers['Sec-WebSocket-Protocol'] = $request->header['sec-websocket-protocol'];
+        }
+
+        foreach ($headers as $key => $val) {
+            $response->header($key, $val);
+        }
+
+        $response->status(101);
+        $response->end();
+        echo "connected!" . PHP_EOL;
+        return true;
+    }
+
+    /**
+     * [open 当 `WebSocket` 客户端与服务器建立连接并完成握手后会回调此函数]
      * @param  swoole_websocket_server $server [description]
-     * @param  swoole_http_request     $req    [description]
+     * @param  swoole_http_request     $req    [$req 是一个Http请求对象，包含了客户端发来的握手请求信息]
      * @return [type]                          [description]
      */
     public function open(\swoole_websocket_server $server, \swoole_http_request $req)
     {
+        // 打印日志
+        echo "server: handshake success with fd{$req->fd}\n";
+
         $avatar   = $this->avatars[array_rand($this->avatars)];
         $nickname = $this->nicknames[array_rand($this->nicknames)];
         // 映射存到redis
@@ -123,12 +181,12 @@ class WebSocket
             'avatar'   => $avatar,
             'nickname' => $nickname,
         ]);
-//         $resMsg = array(
-//             'cmd' => 'login',
-//             'fd' => $client_id,
-//             'name' => $info['name'],
-//             'avatar' => $info['avatar'],
-//         );
+        // $resMsg = array(
+        //     'cmd' => 'login',
+        //     'fd' => $client_id,
+        //     'name' => $info['name'],
+        //     'avatar' => $info['avatar'],
+        // );
 
         // init selfs data
         $userMsg = $this->buildMsg([
@@ -170,15 +228,24 @@ class WebSocket
     }
 
     /**
-     * [message description]
+     * [message 当服务器收到来自客户端的数据帧时会回调此函数]
      * @param  swoole_websocket_server $server [description]
-     * @param  swoole_websocket_frame  $frame  [description]
+     * @param  swoole_websocket_frame  $frame  [$frame 是swoole_websocket_frame对象，包含了客户端发来的数据帧信息]
      * @return [type]                          [description]
      */
     public function message(\swoole_websocket_server $server, \swoole_websocket_frame $frame)
     {
+        // 打印日志
+        echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
+
+        // $frame 是swoole_websocket_frame对象，包含了客户端发来的数据帧信息。共有4个属性，分别是:
+        // $frame->fd，客户端的socket id，使用$server->push推送数据时需要用到
+        // $frame->data，数据内容，可以是文本内容也可以是二进制数据，可以通过opcode的值来判断,$data 如果是文本类型，编码格式必然是UTF-8，这是WebSocket协议规定的
+        // $frame->opcode，WebSocket的OpCode类型，可以参考WebSocket协议标准文档
+        // $frame->finish， 表示数据帧是否完整，一个WebSocket请求可能会分成多个数据帧进行发送
+
         $receive = json_decode($frame->data, true);
-        var_dump($receive);
+        echo json_encode($receive);
         $msg     = $this->buildMsg($receive, self::MESSAGE_TYPE);
         $task    = [
             'to'     => [],
@@ -199,6 +266,9 @@ class WebSocket
      */
     public function close(\swoole_websocket_server $server, $fd)
     {
+        // 打印日志
+        echo "client {$fd} closed\n";
+
         $this->storage->logout($fd);
         $msg = $this->buildMsg([
             'id'    => $fd,
