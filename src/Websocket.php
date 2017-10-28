@@ -121,6 +121,60 @@ class WebSocket
     }
 
     /**
+     * [adminHandshake `WebSocket` 建立连接后进行握手, 设置onHandShake回调函数后不会再触发 `onOpen` 事件，需要应用代码自行处理]
+     * @param  \swoole_http_request  $request  [description]
+     * @param  \swoole_http_response $response [description]
+     * @return [type]                          [`onHandShake` 函数必须返回 `true` 表示握手成功，返回其他值表示握手失败]
+     */
+    public function adminHandshake(\swoole_http_request $request, \swoole_http_response $response) 
+    {
+        // 打印日志
+        echo "server: ***admin*** handshake success with fd{$request->fd}\n";
+
+        // print_r( $request->header );
+        // if (如果不满足我某些自定义的需求条件，那么返回end输出，返回false，握手失败) {
+        //    $response->end();
+        //     return false;
+        // }
+
+        // websocket握手连接算法验证
+        $secWebSocketKey = $request->header['sec-websocket-key'];
+        $patten = '#^[+/0-9A-Za-z]{21}[AQgw]==$#';
+        if (0 === preg_match($patten, $secWebSocketKey) || 16 !== strlen(base64_decode($secWebSocketKey))) {
+            $response->end();
+            return false;
+        }
+        echo "sec-websocket-key:" . $request->header['sec-websocket-key'];
+        $key = base64_encode(sha1(
+            $request->header['sec-websocket-key'] . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11',
+            true
+        ));
+
+        $headers = [
+            'Upgrade' => 'websocket',
+            'Connection' => 'Upgrade',
+            'Sec-WebSocket-Accept' => $key,
+            'Sec-WebSocket-Version' => '13',
+        ];
+
+        // WebSocket connection to 'ws://127.0.0.1:9502/'
+        // failed: Error during WebSocket handshake:
+        // Response must not include 'Sec-WebSocket-Protocol' header if not present in request: websocket
+        if (isset($request->header['sec-websocket-protocol'])) {
+            $headers['Sec-WebSocket-Protocol'] = $request->header['sec-websocket-protocol'];
+        }
+
+        foreach ($headers as $key => $val) {
+            $response->header($key, $val);
+        }
+
+        $response->status(101);
+        $response->end();
+        echo "connected!" . PHP_EOL;
+        return true;
+    }    
+
+    /**
      * [handshake `WebSocket` 建立连接后进行握手, 设置onHandShake回调函数后不会再触发 `onOpen` 事件，需要应用代码自行处理]
      * @param  \swoole_http_request  $request  [description]
      * @param  \swoole_http_response $response [description]
