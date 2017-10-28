@@ -252,7 +252,7 @@ class WebSocket
             'except' => [$frame->fd],
             'data'   => $msg,
         ];
-        if ($receive['to'] != 0) {
+        if (isset($receive['to']) && $receive['to'] != 0) {
             $task['to'] = [$receive['to']];
         }
         $server->task($task);
