@@ -459,6 +459,7 @@ class WebSocket
             return false;
         }
         echo "sec-websocket-key:" . $request->header['sec-websocket-key'];
+        echo "\n";
         $key = base64_encode(sha1(
             $request->header['sec-websocket-key'] . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11',
             true
