@@ -240,7 +240,7 @@ class WebSocket
             // 超时
             curl_setopt($ch, CURLOPT_TIMEOUT, 5);
             // 用户
-            //  curl_setopt($ch, CURLOPT_USERAGENT, $defined_vars['HTTP_USER_AGENT']);
+            // curl_setopt($ch, CURLOPT_USERAGENT, $defined_vars['HTTP_USER_AGENT']);
             // 执行cURL会话
             $responseData = curl_exec($ch);
             if (curl_errno($ch)) {
@@ -259,7 +259,8 @@ class WebSocket
             print_r($responseData);
             echo "\n";
             echo "接收到的值 end:\n";
-            if ($userId = isset($responseData['data']['id'])) {
+            if (isset($responseData['data']['id'])) {
+                $userId = $responseData['data']['id'];
                 // // 打印日志
                 // echo "server: handshake success with fd{$req->fd}\n";
 
