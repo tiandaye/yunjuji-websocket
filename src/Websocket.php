@@ -213,7 +213,7 @@ class WebSocket
             echo "\n";
 
             $postUrl = "127.0.0.1:8005/api/users";
-            $authorization = "Authorization:" . substr(strpos($request->server['query_string'], strpos($request->server['query_string'], "="));
+            $authorization = "Authorization:" . substr($request->server['query_string'], strpos($request->server['query_string'], "="));
             $header = [];
             $header[] = $authorization;
             // $header[] = "Content-type: text/xml";
