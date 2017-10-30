@@ -371,7 +371,9 @@ class WebSocket
             echo "接收到的值 end:\n";
             if (isset($responseData['data'])) {
                 $data = json_encode($responseData['data'], true);
+                print_r($data);
                 if (!isset($data['id'])) {
+                     echo "*************************************id\n";
                     $response->end();
                     return false;
                 }
