@@ -556,16 +556,17 @@ class WebSocket
                 case 'login':
                     // 映射存到redis
                     $this->storage->login($frame->fd, [
-                        'id'       => $userId,
-                        'user_id'  => $userId,
-                        'avatar'   => $avatar,
-                        'nickname' => $nickname,
-                        'fd' => $request->fd,
+                        'id'       => $data->id,
+                        'user_id'  => $data->id,
+                        'avatar'   => $data->avatar,
+                        'name' => $data->name,
+                        'user_name' => $data->username,
+                        'fd' => $frame->fd,
                     ]);
                     break;
                 
                 default:
-                    # code...
+
                     break;
             }
         }
