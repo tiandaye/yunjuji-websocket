@@ -138,7 +138,14 @@ class WebSocket
 
         // 自定义鉴权
         $postUrl = "http://127.0.0.1:8006/admin/authorization";
-        $header  = [];
+        $headers  = [];
+        $cookies = [];
+        foreach ($request->header as $key => $value) {
+            $headers[] = $key . ':' . $value;
+        }
+        foreach ($request->cookie as $key => $value) {
+             $cookies[] = $key . ':' . $value;
+        }
         // $header[] = "Content-type: text/xml";
 
         // 注入调用的地址
@@ -149,7 +156,7 @@ class WebSocket
         }
         // 初始一个curl会话
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $request->header);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         // 设置url
         curl_setopt($ch, CURLOPT_URL, $url);
         // TRUE, 将curl_exec()获取的信息以字符串返回, 而不是直接输出
@@ -162,7 +169,7 @@ class WebSocket
         // 超时
         curl_setopt($ch, CURLOPT_TIMEOUT, 5);
         // 设置cookie
-        curl_setopt($ch, CURLOPT_COOKIE, $request->cookie);
+        curl_setopt($ch, CURLOPT_COOKIE, $cookies);
         // 用户
         // curl_setopt($ch, CURLOPT_USERAGENT, $defined_vars['HTTP_USER_AGENT']);
         // 执行cURL会话
