@@ -136,6 +136,121 @@ class WebSocket
         print_r( $request->cookie );
         print_r( $request->header );
 
+        // 自定义鉴权
+        if (isset($request->server['query_string'])) {
+            $postUrl = "127.0.0.1:8005/api/authorization";
+            $header = [];
+            // $header[] = "Content-type: text/xml";
+
+            // 注入调用的地址
+            $url = $postUrl;
+            //首先检测是否支持curl
+            if (!extension_loaded("curl")) {
+                trigger_error("对不起，请开启curl功能模块！", E_USER_ERROR);
+            }
+            // 初始一个curl会话
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $request->header);
+            // 设置url
+            curl_setopt($ch, CURLOPT_URL, $url);
+            // TRUE, 将curl_exec()获取的信息以字符串返回, 而不是直接输出
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            // 设置发送方式:post
+            // curl_setopt($ch, CURLOPT_POST, 1);
+            // 设置发送数据
+            // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            // curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+            // 超时
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+            // 设置cookie
+            curl_setopt($ch, CURLOPT_COOKIE, $request->cookie);
+            // 用户
+            // curl_setopt($ch, CURLOPT_USERAGENT, $defined_vars['HTTP_USER_AGENT']);
+            // 执行cURL会话
+            $responseData = curl_exec($ch);
+            if (curl_errno($ch)) {
+                print curl_error($ch);
+            }
+            curl_close($ch);
+            // post的数据为xml字符串，通过 $xml = simplexml_load_string($post_data);转换成xml对象
+            // $xml = simplexml_load_string($response);
+
+            //先把xml转换为simplexml对象，再把simplexml对象转换成 json，再将 json 转换成数组。
+            // $value_array = json_decode(json_encode(simplexml_load_string($return_xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+            echo "接收到的值 start:\n";
+            print_r($responseData);
+            echo "\n";
+            $responseData = json_decode($responseData, true);
+            print_r($responseData);
+            echo "\n";
+            echo "接收到的值 end:\n";
+            if (isset($responseData['data']['id'])) {
+                $userId = $responseData['data']['id'];
+                // // 打印日志
+                // echo "server: handshake success with fd{$req->fd}\n";
+
+                // $avatar   = 'thc';
+                // $nickname = 'lwj';
+                // // 映射存到redis
+                // $this->storage->login($req->fd, [
+                //     'id'       => $userId,// $req->fd,
+                //     'user_id' => $userId,
+                //     'avatar'   => $avatar,
+                //     'nickname' => $nickname,
+                // ]);
+                // // $resMsg = array(
+                // //     'cmd' => 'login',
+                // //     'fd' => $client_id,
+                // //     'name' => $info['name'],
+                // //     'avatar' => $info['avatar'],
+                // // );
+
+                // // init selfs data
+                // $userMsg = $this->buildMsg([
+                //     'id'       => $userId,// $req->fd,
+                //     'avatar'   => $avatar,
+                //     'nickname' => $nickname,
+                //     'count'    => count($this->storage->getUsers($server->connections)),
+                // ], self::INIT_SELF_TYPE);
+                // $this->server->task([
+                //     'to'     => [$req->fd],
+                //     'except' => [],
+                //     'data'   => $userMsg,
+                // ]);
+
+                // // init others data
+                // $others = [];
+                // foreach ($server->connections as $row) {
+                //     $others[] = $row;
+                // }
+                // $otherMsg = $this->buildMsg($others, self::INIT_OTHER_TYPE);
+                // $this->server->task([
+                //     'to'     => [$req->fd],
+                //     'except' => [],
+                //     'data'   => $otherMsg,
+                // ]);
+
+                // //broadcast a user is online
+                // $msg = $this->buildMsg([
+                //     'id'       => $userId,// $req->fd,
+                //     'avatar'   => $avatar,
+                //     'nickname' => $nickname,
+                //     'count'    => count($this->storage->getUsers($server->connections)),
+                // ], self::CONNECT_TYPE);
+                // $this->server->task([
+                //     'to'     => [],
+                //     'except' => [$req->fd],
+                //     'data'   => $msg,
+                // ]);
+            } else {
+                $response->end();
+                return false;
+            }
+        } else {
+            $response->end();
+            return false;
+        }
+
         // if (如果不满足我某些自定义的需求条件，那么返回end输出，返回false，握手失败) {
         //    $response->end();
         //     return false;
@@ -196,14 +311,14 @@ class WebSocket
     {
         echo "handshake start\n";
         // 打印日志
-        echo "server: handshake success with fd{$request->fd}\n";
+        echo "server: handshake start with fd{$request->fd}\n";
 
         // print_r( $request );
         // print_r( $request->cookie );
         // print_r( $request->header );
         // print_r( $request->server['query_string'] );
 
-        // 拿到 `Authorization` 去请求接口数据
+        // 自定义鉴权
         if (isset($request->server['query_string'])) {
             echo "parse_str start\n";
             $queryString = urldecode($request->server['query_string']);
