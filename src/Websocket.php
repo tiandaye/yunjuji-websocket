@@ -109,7 +109,7 @@ class WebSocket
 
         // 多开启一个websocket服务, 端口不一样
         $this->adminServer = $server->listen('0.0.0.0', 9502, SWOOLE_TCP);
-        $this->adminServer->on('handshake', [$this, 'adminHandshake']);
+        // $this->adminServer->on('handshake', [$this, 'adminHandshake']);
         $this->adminServer->on('open', [$this, 'open']);
         $this->adminServer->on('message', [$this, 'message']);
         $this->adminServer->on('close', [$this, 'close']);
@@ -146,6 +146,8 @@ class WebSocket
         foreach ($request->cookie as $key => $value) {
              $cookies[] = $key . ':' . $value;
         }
+        print_r($headers);
+        print_r($cookies);
         // $header[] = "Content-type: text/xml";
 
         // 注入调用的地址
@@ -178,18 +180,13 @@ class WebSocket
             print curl_error($ch);
         }
         curl_close($ch);
-        // post的数据为xml字符串，通过 $xml = simplexml_load_string($post_data);转换成xml对象
-        // $xml = simplexml_load_string($response);
-
-        //先把xml转换为simplexml对象，再把simplexml对象转换成 json，再将 json 转换成数组。
-        // $value_array = json_decode(json_encode(simplexml_load_string($return_xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
         echo "接收到的值 start:\n";
         print_r($responseData);
         echo "\n";
         $responseData = json_decode($responseData, true);
         print_r($responseData);
         echo "\n";
-        echo "接收到的值 end:\n";
+        echo "接收到的值 end\n";
         if (isset($responseData['data']['id'])) {
             $userId = $responseData['data']['id'];
             // // 打印日志
@@ -321,23 +318,12 @@ class WebSocket
 
         // 自定义鉴权
         if (isset($request->server['query_string'])) {
-            // echo "parse_str start\n";
+            $url       = "http://127.0.0.1:8005/api/authorization";
             $queryString = urldecode($request->server['query_string']);
-            // echo substr($queryString, strpos($queryString, "=") + 1);
-            // echo "\n";
-
-            $postUrl       = "http://127.0.0.1:8005/api/authorization";
             $authorization = "Authorization:" . substr($queryString, strpos($queryString, "=") + 1);
             $header        = [];
             $header        = [$authorization];
-            // $header[] = "Content-type: text/xml";
-            // $header = ["Authorization:Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImExM2UwNDY3NTJmMmQxNDc0M2M1YzRhZTg2ZTlhZDU2MjM3MjU3ZTU3YWI3MWFlZDM0OGJkNDk5NjQ0YTQ0MmE5YjEyMzc4Mjk0MDViNWYzIn0.eyJhdWQiOiIyIiwianRpIjoiYTEzZTA0Njc1MmYyZDE0NzQzYzVjNGFlODZlOWFkNTYyMzcyNTdlNTdhYjcxYWVkMzQ4YmQ0OTk2NDRhNDQyYTliMTIzNzgyOTQwNWI1ZjMiLCJpYXQiOjE1MDgyMDIwNTUsIm5iZiI6MTUwODIwMjA1NSwiZXhwIjoxNTA5NDk4MDU0LCJzdWIiOiI3MzI0Iiwic2NvcGVzIjpbIioiXX0.q34mPCdJAzSHXZ7Trkf7vSnln8xluxsPQf3-v1ZEVZGfjGKoGyxxrzzjprsR7-Ui2f2gyu6ldk98O5VP4IyZBaYopDa4AQjLa_anzvvcZvONm5CDwumevDvuDKkR_BesLuBivNWEAVn3tKgjwRTShXWsbKE9xNmIJVPgD8gq1suux2puyo7XNGBvq5B-BpyPKqat4JZOzUAQ6vZ_R3c7TDBPFaPwjS0j22EhPTemzrl0AQmD7uByAMcnFpqEXmsWRlfAJwv3100yxpA2HYpi-5qi1TYAcHnKbkrGe8tFzB8EZTw7NiWRAcJ0WBuzMK23IFxEdwX3sDK67dRum769IgFW3R2eCodAuRlXjMek8Rk_c20gk4VOniozhgsAZ-o-5X6xyJP84L5Qn_xhSFJ6jW2ZWbJWs_lPwrmiTFV7h_UsWOHXKLqKRaI1xm9u03GAZ4NLRs5uNqJEgwXCdVT4XUfHneZ_urJJbsKr1_cQNGCQ87H-dj_qIkXOkXzPxDJjyc3RAsTEpo6A6wW1v7GeFcsjpvM-mG2zehEohNeBHswzGze2Lyjj4dPAdTzNNtuvxRrA5vruqmyQeu6dSe4zKDq4-qWj3pgzbE0hAxpHZOISV5IMR8S2OaXlNetc_Uo8byRstWPA0vQcwDEViiU70n_pUmXslkzvr_PPRYrg7mI"];
-            $post_data = [];
-            // $post_data["price"] = 180.00;
-
-            // 注入调用的地址
-            $url = $postUrl;
-            //首先检测是否支持curl
+            // 首先检测是否支持curl
             if (!extension_loaded("curl")) {
                 trigger_error("对不起，请开启curl功能模块！", E_USER_ERROR);
             }
@@ -363,43 +349,24 @@ class WebSocket
                 print curl_error($ch);
             }
             curl_close($ch);
-
-            // echo "接收到的值 start:\n";
-            // print_r($responseData);
-            // echo "\n";
             $responseData = json_decode($responseData, true);
-            // print_r($responseData);
-            // echo "\n";
-            // echo "接收到的值 end:\n";
             if (isset($responseData['data'])) {
-                // echo "data start\n";
-                // print_r($responseData['data']);
                 $data = json_decode($responseData['data'], true);
-                echo "用户信息:\n";
-                print_r($data);
                 if (!isset($data['id'])) {
                     $response->end();
                     return false;
                 }
-                // echo $data['id'] . ":\n";
-                // echo "data end\n";
                 $userId = $data['id'];
-
                 $avatar   = 'thc';
                 $nickname = 'lwj';
                 // 映射存到redis
                 $this->storage->login($request->fd, [
-                    'id'       => $userId, // $request->fd,
+                    'id'       => $userId, // 
                     'user_id'  => $userId,
                     'avatar'   => $avatar,
                     'nickname' => $nickname,
+                    'fd' => $request->fd,
                 ]);
-                // $resMsg = array(
-                //     'cmd' => 'login',
-                //     'fd' => $client_id,
-                //     'name' => $info['name'],
-                //     'avatar' => $info['avatar'],
-                // );
 
                 // init selfs data
                 $userMsg = $this->buildMsg([
@@ -407,6 +374,8 @@ class WebSocket
                     'avatar'   => $avatar,
                     'nickname' => $nickname,
                     'count'    => 1,
+                    'cmd' => 'login',
+                    'fd' => $client_id,
                     // 'count'    => count($this->storage->getUsers($server->connections)),
                 ], self::INIT_SELF_TYPE);
                 $this->server->task([
@@ -448,9 +417,6 @@ class WebSocket
             $response->end();
             return false;
         }
-
-        echo "*****************鉴权完毕*****************\n";
-        // print_r( parse_str($request->server['query_string']) );
 
         // print_r( $request->header );
         // if (如果不满足我某些自定义的需求条件，那么返回end输出，返回false，握手失败) {
@@ -572,14 +538,38 @@ class WebSocket
         // 打印日志
         echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
 
-        // $frame 是swoole_websocket_frame对象，包含了客户端发来的数据帧信息。共有4个属性，分别是:
-        // $frame->fd，客户端的socket id，使用$server->push推送数据时需要用到
-        // $frame->data，数据内容，可以是文本内容也可以是二进制数据，可以通过opcode的值来判断,$data 如果是文本类型，编码格式必然是UTF-8，这是WebSocket协议规定的
-        // $frame->opcode，WebSocket的OpCode类型，可以参考WebSocket协议标准文档
-        // $frame->finish， 表示数据帧是否完整，一个WebSocket请求可能会分成多个数据帧进行发送
+        // `$frame` 是 `swoole_websocket_frame` 对象，包含了客户端发来的数据帧信息。共有4个属性，分别是:
+        // `$frame->fd`，客户端的 `socket id`，使用 `$server->push` 推送数据时需要用到
+        // `$frame->data`，数据内容，可以是文本内容也可以是二进制数据，可以通过opcode的值来判断,$data 如果是文本类型，编码格式必然是UTF-8，这是 `WebSocket` 协议规定的
+        // `$frame->opcode`，`WebSocket` 的 `OpCode` 类型，可以参考 `WebSocket` 协议标准文档
+        // `$frame->finish`， 表示数据帧是否完整，一个 `WebSocket` 请求可能会分成多个数据帧进行发送
 
         $receive = json_decode($frame->data, true);
         echo json_encode($receive);
+        // 接受的数据格式{"type":"", "data":{}}
+        if (isset($receive['type']) && isset($receive['data'])) {
+            $type = $receive['type'];
+            $data = $receive['data'];
+
+            switch ($type) {
+                // 登录事件-用户id和fd关联
+                case 'login':
+                    // 映射存到redis
+                    $this->storage->login($frame->fd, [
+                        'id'       => $userId,
+                        'user_id'  => $userId,
+                        'avatar'   => $avatar,
+                        'nickname' => $nickname,
+                        'fd' => $request->fd,
+                    ]);
+                    break;
+                
+                default:
+                    # code...
+                    break;
+            }
+        }
+
         $msg  = $this->buildMsg($receive, self::MESSAGE_TYPE);
         $task = [
             'to'     => [],
@@ -593,7 +583,7 @@ class WebSocket
     }
 
     /**
-     * [close description]
+     * [close 关闭事件]
      * @param  swoole_websocket_server $server [description]
      * @param  [type]                  $fd     [description]
      * @return [type]                          [description]
@@ -616,7 +606,7 @@ class WebSocket
     }
 
     /**
-     * [task description]
+     * [task task异步处理]
      * @param  [type] $server  [description]
      * @param  [type] $task_id [description]
      * @param  [type] $from_id [description]
@@ -648,7 +638,7 @@ class WebSocket
     }
 
     /**
-     * [buildMsg description]
+     * [buildMsg 发送给用户的信息]
      * @param  [type]  $data   [description]
      * @param  [type]  $type   [description]
      * @param  integer $status [description]
