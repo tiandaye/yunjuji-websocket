@@ -546,7 +546,9 @@ class WebSocket
         // `$frame->finish`， 表示数据帧是否完整，一个 `WebSocket` 请求可能会分成多个数据帧进行发送
 
         $receive = json_decode($frame->data, true);
+        echo "接受的数据:";
         echo json_encode($receive);
+        echo "\n";
         // 接受的数据格式{"type":"", "data":{}}
         if (isset($receive['type']) && isset($receive['data'])) {
             $type = $receive['type'];
