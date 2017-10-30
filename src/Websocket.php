@@ -374,7 +374,7 @@ class WebSocket
                     $response->end();
                     return false;
                 }
-                echo "$data['id']:\n";
+                echo $data['id'] . ":\n";
                 // echo "data end\n";
                 $userId = $data['id'];
 
