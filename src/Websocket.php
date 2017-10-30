@@ -114,8 +114,8 @@ class WebSocket
         $this->adminServer->on('message', [$this, 'message']);
         $this->adminServer->on('close', [$this, 'close']);
         // 开启 `task` , 必须要有这两个函数。这两个回调函数分别用于执行 `Task` 任务和处理 `Task` 任务的返回结果
-        $this->adminServer->on('task', [$this, 'task']);
-        $this->adminServer->on('finish', [$this, 'finish']);
+        // $this->adminServer->on('task', [$this, 'task']);
+        // $this->adminServer->on('finish', [$this, 'finish']);
 
         $server->start();
     }
@@ -131,7 +131,7 @@ class WebSocket
         // 打印日志
         echo "server: ***admin*** handshake success with fd{$request->fd}\n";
 
-        // print_r( $request->header );
+        print_r( $request->header );
         // if (如果不满足我某些自定义的需求条件，那么返回end输出，返回false，握手失败) {
         //    $response->end();
         //     return false;
