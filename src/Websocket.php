@@ -261,11 +261,11 @@ class WebSocket
 
             //先把xml转换为simplexml对象，再把simplexml对象转换成 json，再将 json 转换成数组。
             // $value_array = json_decode(json_encode(simplexml_load_string($return_xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
-            echo "<h3>接收到的值</h3>";
+            echo "接收到的值 start:\n";
             // 将xml对象转为json
             $res = json_decode($response);
             print_r($res);
-
+            echo "接收到的值 end:\n";
 
             // print_r( $request->server['query_string'] );
             // print_r( parse_str($request->server['query_string']) );
