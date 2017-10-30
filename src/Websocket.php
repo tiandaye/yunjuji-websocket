@@ -211,6 +211,63 @@ class WebSocket
             echo "parse_str start\n";
             echo substr(strpos($request->server['query_string'], strpos($request->server['query_string'], "="));
             echo "\n";
+
+
+            $postUrl = "127.0.0.1:8005/api/users";
+            $authorization = "Authorization:" . substr(strpos($request->server['query_string'], strpos($request->server['query_string'], "="));
+            $header = [];
+            $header[] = $authorization;
+            // $header[] = "Content-type: text/xml";
+            // $header = ["Authorization:Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImExM2UwNDY3NTJmMmQxNDc0M2M1YzRhZTg2ZTlhZDU2MjM3MjU3ZTU3YWI3MWFlZDM0OGJkNDk5NjQ0YTQ0MmE5YjEyMzc4Mjk0MDViNWYzIn0.eyJhdWQiOiIyIiwianRpIjoiYTEzZTA0Njc1MmYyZDE0NzQzYzVjNGFlODZlOWFkNTYyMzcyNTdlNTdhYjcxYWVkMzQ4YmQ0OTk2NDRhNDQyYTliMTIzNzgyOTQwNWI1ZjMiLCJpYXQiOjE1MDgyMDIwNTUsIm5iZiI6MTUwODIwMjA1NSwiZXhwIjoxNTA5NDk4MDU0LCJzdWIiOiI3MzI0Iiwic2NvcGVzIjpbIioiXX0.q34mPCdJAzSHXZ7Trkf7vSnln8xluxsPQf3-v1ZEVZGfjGKoGyxxrzzjprsR7-Ui2f2gyu6ldk98O5VP4IyZBaYopDa4AQjLa_anzvvcZvONm5CDwumevDvuDKkR_BesLuBivNWEAVn3tKgjwRTShXWsbKE9xNmIJVPgD8gq1suux2puyo7XNGBvq5B-BpyPKqat4JZOzUAQ6vZ_R3c7TDBPFaPwjS0j22EhPTemzrl0AQmD7uByAMcnFpqEXmsWRlfAJwv3100yxpA2HYpi-5qi1TYAcHnKbkrGe8tFzB8EZTw7NiWRAcJ0WBuzMK23IFxEdwX3sDK67dRum769IgFW3R2eCodAuRlXjMek8Rk_c20gk4VOniozhgsAZ-o-5X6xyJP84L5Qn_xhSFJ6jW2ZWbJWs_lPwrmiTFV7h_UsWOHXKLqKRaI1xm9u03GAZ4NLRs5uNqJEgwXCdVT4XUfHneZ_urJJbsKr1_cQNGCQ87H-dj_qIkXOkXzPxDJjyc3RAsTEpo6A6wW1v7GeFcsjpvM-mG2zehEohNeBHswzGze2Lyjj4dPAdTzNNtuvxRrA5vruqmyQeu6dSe4zKDq4-qWj3pgzbE0hAxpHZOISV5IMR8S2OaXlNetc_Uo8byRstWPA0vQcwDEViiU70n_pUmXslkzvr_PPRYrg7mI"];
+            $post_data = [];
+            // $post_data["broadband_account"] = "11111111111";
+            // $codes = ["HWTC06A7529A", "HWTC06A7539A", "HWTC06A7559A", "HWTC06A7569A", "HWTC06A7579A", "HWTC06A75E9A"];
+            // // $random = rand(0, 5);
+            // // $post_data["code_id"] = $codes[$random];
+            // $post_data["code_id"] = "HWTC06A76C9A";
+            // $post_data["note"] = "";
+            // $post_data["order_kind"] = null;
+            // $post_data["price"] = 180.00;
+
+            // 注入调用的地址
+            $url = $postUrl;
+            //首先检测是否支持curl
+            if (!extension_loaded("curl")) {
+                trigger_error("对不起，请开启curl功能模块！", E_USER_ERROR);
+            }
+            // 初始一个curl会话
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+            // 设置url
+            curl_setopt($ch, CURLOPT_URL, $url);
+            // TRUE, 将curl_exec()获取的信息以字符串返回, 而不是直接输出
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            // 设置发送方式:post
+            curl_setopt($ch, CURLOPT_POST, 1);
+            // 设置发送数据
+            // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+            // 超时
+            curl_setopt($ch, CURLOPT_TIMEOUT,60);
+            // 用户
+            //  curl_setopt($ch, CURLOPT_USERAGENT, $defined_vars['HTTP_USER_AGENT']);
+            // 执行cURL会话
+            $response = curl_exec($ch);
+            if (curl_errno($ch)) {
+                print curl_error($ch);
+            }
+            curl_close($ch);
+            // post的数据为xml字符串，通过 $xml = simplexml_load_string($post_data);转换成xml对象
+            // $xml = simplexml_load_string($response);
+
+            //先把xml转换为simplexml对象，再把simplexml对象转换成 json，再将 json 转换成数组。
+            // $value_array = json_decode(json_encode(simplexml_load_string($return_xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
+            echo "<h3>接收到的值</h3>";
+            // 将xml对象转为json
+            $res = json_decode($response);
+            print_r($res);
+
+
             // print_r( $request->server['query_string'] );
             // print_r( parse_str($request->server['query_string']) );
         }
