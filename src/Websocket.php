@@ -79,9 +79,9 @@ class WebSocket
      */
     public function __construct($config = [])
     {
-        $this->config = $config;
-        $this->host   = $config['server']['master']['host'];
-        $this->port = $config['server']['master']['port'];
+        $this->config  = $config;
+        $this->host    = $config['server']['master']['host'];
+        $this->port    = $config['server']['master']['port'];
         $this->storage = new Storage($config['storage']);
         $this->init();
     }
@@ -126,19 +126,19 @@ class WebSocket
      * @param  \swoole_http_response $response [description]
      * @return [type]                          [`onHandShake` 函数必须返回 `true` 表示握手成功，返回其他值表示握手失败]
      */
-    public function adminHandshake(\swoole_http_request $request, \swoole_http_response $response) 
+    public function adminHandshake(\swoole_http_request $request, \swoole_http_response $response)
     {
         // 打印日志
         echo "adminHandshake start\n";
         echo "server: ***admin*** handshake success with fd{$request->fd}\n";
 
-        print_r( $request );
-        print_r( $request->cookie );
-        print_r( $request->header );
+        print_r($request);
+        print_r($request->cookie);
+        print_r($request->header);
 
         // 自定义鉴权
         $postUrl = "http://127.0.0.1:8006/admin/authorization";
-        $header = [];
+        $header  = [];
         // $header[] = "Content-type: text/xml";
 
         // 注入调用的地址
@@ -250,10 +250,9 @@ class WebSocket
         //    $response->end();
         //     return false;
         // }
-        
+
         // 自定定握手规则，没有设置则用系统内置的（只支持version:13的）
-        if (!isset($request->header['sec-websocket-key']))
-        {
+        if (!isset($request->header['sec-websocket-key'])) {
             //'Bad protocol implementation: it is not RFC6455.'
             $response->end();
             return false;
@@ -261,7 +260,7 @@ class WebSocket
 
         // websocket握手连接算法验证
         $secWebSocketKey = $request->header['sec-websocket-key'];
-        $patten = '#^[+/0-9A-Za-z]{21}[AQgw]==$#';
+        $patten          = '#^[+/0-9A-Za-z]{21}[AQgw]==$#';
         if (0 === preg_match($patten, $secWebSocketKey) || 16 !== strlen(base64_decode($secWebSocketKey))) {
             $response->end();
             return false;
@@ -273,9 +272,9 @@ class WebSocket
         ));
 
         $headers = [
-            'Upgrade' => 'websocket',
-            'Connection' => 'Upgrade',
-            'Sec-WebSocket-Accept' => $key,
+            'Upgrade'               => 'websocket',
+            'Connection'            => 'Upgrade',
+            'Sec-WebSocket-Accept'  => $key,
             'Sec-WebSocket-Version' => '13',
         ];
 
@@ -294,7 +293,7 @@ class WebSocket
         $response->end();
         echo "connected!" . PHP_EOL;
         return true;
-    }    
+    }
 
     /**
      * [handshake `WebSocket` 建立连接后进行握手, 设置onHandShake回调函数后不会再触发 `onOpen` 事件，需要应用代码自行处理]
@@ -302,7 +301,7 @@ class WebSocket
      * @param  \swoole_http_response $response [description]
      * @return [type]                          [`onHandShake` 函数必须返回 `true` 表示握手成功，返回其他值表示握手失败]
      */
-    public function handshake(\swoole_http_request $request, \swoole_http_response $response) 
+    public function handshake(\swoole_http_request $request, \swoole_http_response $response)
     {
         echo "handshake start\n";
         // 打印日志
@@ -315,15 +314,15 @@ class WebSocket
 
         // 自定义鉴权
         if (isset($request->server['query_string'])) {
-            echo "parse_str start\n";
+            // echo "parse_str start\n";
             $queryString = urldecode($request->server['query_string']);
-            echo substr($queryString, strpos($request->server['query_string'], "=") + 1);
-            echo "\n";
+            // echo substr($queryString, strpos($queryString, "=") + 1);
+            // echo "\n";
 
-            $postUrl = "http://127.0.0.1:8005/api/authorization";
+            $postUrl       = "http://127.0.0.1:8005/api/authorization";
             $authorization = "Authorization:" . substr($queryString, strpos($queryString, "=") + 1);
-            $header = [];
-            $header = [$authorization];
+            $header        = [];
+            $header        = [$authorization];
             // $header[] = "Content-type: text/xml";
             // $header = ["Authorization:Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImExM2UwNDY3NTJmMmQxNDc0M2M1YzRhZTg2ZTlhZDU2MjM3MjU3ZTU3YWI3MWFlZDM0OGJkNDk5NjQ0YTQ0MmE5YjEyMzc4Mjk0MDViNWYzIn0.eyJhdWQiOiIyIiwianRpIjoiYTEzZTA0Njc1MmYyZDE0NzQzYzVjNGFlODZlOWFkNTYyMzcyNTdlNTdhYjcxYWVkMzQ4YmQ0OTk2NDRhNDQyYTliMTIzNzgyOTQwNWI1ZjMiLCJpYXQiOjE1MDgyMDIwNTUsIm5iZiI6MTUwODIwMjA1NSwiZXhwIjoxNTA5NDk4MDU0LCJzdWIiOiI3MzI0Iiwic2NvcGVzIjpbIioiXX0.q34mPCdJAzSHXZ7Trkf7vSnln8xluxsPQf3-v1ZEVZGfjGKoGyxxrzzjprsR7-Ui2f2gyu6ldk98O5VP4IyZBaYopDa4AQjLa_anzvvcZvONm5CDwumevDvuDKkR_BesLuBivNWEAVn3tKgjwRTShXWsbKE9xNmIJVPgD8gq1suux2puyo7XNGBvq5B-BpyPKqat4JZOzUAQ6vZ_R3c7TDBPFaPwjS0j22EhPTemzrl0AQmD7uByAMcnFpqEXmsWRlfAJwv3100yxpA2HYpi-5qi1TYAcHnKbkrGe8tFzB8EZTw7NiWRAcJ0WBuzMK23IFxEdwX3sDK67dRum769IgFW3R2eCodAuRlXjMek8Rk_c20gk4VOniozhgsAZ-o-5X6xyJP84L5Qn_xhSFJ6jW2ZWbJWs_lPwrmiTFV7h_UsWOHXKLqKRaI1xm9u03GAZ4NLRs5uNqJEgwXCdVT4XUfHneZ_urJJbsKr1_cQNGCQ87H-dj_qIkXOkXzPxDJjyc3RAsTEpo6A6wW1v7GeFcsjpvM-mG2zehEohNeBHswzGze2Lyjj4dPAdTzNNtuvxRrA5vruqmyQeu6dSe4zKDq4-qWj3pgzbE0hAxpHZOISV5IMR8S2OaXlNetc_Uo8byRstWPA0vQcwDEViiU70n_pUmXslkzvr_PPRYrg7mI"];
             $post_data = [];
@@ -381,8 +380,8 @@ class WebSocket
                 $nickname = 'lwj';
                 // 映射存到redis
                 $this->storage->login($request->fd, [
-                    'id'       => $userId,// $request->fd,
-                    'user_id' => $userId,
+                    'id'       => $userId, // $request->fd,
+                    'user_id'  => $userId,
                     'avatar'   => $avatar,
                     'nickname' => $nickname,
                 ]);
@@ -395,9 +394,10 @@ class WebSocket
 
                 // init selfs data
                 $userMsg = $this->buildMsg([
-                    'id'       => $userId,// $request->fd,
+                    'id'       => $userId, // $request->fd,
                     'avatar'   => $avatar,
                     'nickname' => $nickname,
+                    'count'    => 1,
                     // 'count'    => count($this->storage->getUsers($server->connections)),
                 ], self::INIT_SELF_TYPE);
                 $this->server->task([
@@ -420,9 +420,10 @@ class WebSocket
 
                 //broadcast a user is online
                 $msg = $this->buildMsg([
-                    'id'       => $userId,// $request->fd,
+                    'id'       => $userId, // $request->fd,
                     'avatar'   => $avatar,
                     'nickname' => $nickname,
+                    'count'    => 1,
                     // 'count'    => count($this->storage->getUsers($server->connections)),
                 ], self::CONNECT_TYPE);
                 $this->server->task([
@@ -450,7 +451,7 @@ class WebSocket
 
         // websocket握手连接算法验证
         $secWebSocketKey = $request->header['sec-websocket-key'];
-        $patten = '#^[+/0-9A-Za-z]{21}[AQgw]==$#';
+        $patten          = '#^[+/0-9A-Za-z]{21}[AQgw]==$#';
         if (0 === preg_match($patten, $secWebSocketKey) || 16 !== strlen(base64_decode($secWebSocketKey))) {
             $response->end();
             return false;
@@ -462,9 +463,9 @@ class WebSocket
         ));
 
         $headers = [
-            'Upgrade' => 'websocket',
-            'Connection' => 'Upgrade',
-            'Sec-WebSocket-Accept' => $key,
+            'Upgrade'               => 'websocket',
+            'Connection'            => 'Upgrade',
+            'Sec-WebSocket-Accept'  => $key,
             'Sec-WebSocket-Version' => '13',
         ];
 
@@ -569,8 +570,8 @@ class WebSocket
 
         $receive = json_decode($frame->data, true);
         echo json_encode($receive);
-        $msg     = $this->buildMsg($receive, self::MESSAGE_TYPE);
-        $task    = [
+        $msg  = $this->buildMsg($receive, self::MESSAGE_TYPE);
+        $task = [
             'to'     => [],
             'except' => [$frame->fd],
             'data'   => $msg,
@@ -613,7 +614,7 @@ class WebSocket
      * @return [type]          [description]
      */
     public function task($server, $task_id, $from_id, $data)
-    {   
+    {
         // 广播
         $clients = $server->connections;
         // 组播或点播
