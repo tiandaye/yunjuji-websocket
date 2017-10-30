@@ -201,10 +201,7 @@ class WebSocket
         // print_r( $request );
         // print_r( $request->cookie );
         // print_r( $request->header );
-
-        echo "query_string start\n";
-        print_r( $request->server['query_string'] );
-        echo "\n";
+        // print_r( $request->server['query_string'] );
 
         // 拿到 `Authorization` 去请求接口数据
         if (isset($request->server['query_string'])) {
