@@ -209,7 +209,7 @@ class WebSocket
         // 拿到 `Authorization` 去请求接口数据
         if (isset($request->server['query_string'])) {
             echo "parse_str start\n";
-            echo strpos($request->server['query_string'], "=");
+            echo substr(strpos($request->server['query_string'], strpos($request->server['query_string'], "="));
             echo "\n";
             // print_r( $request->server['query_string'] );
             // print_r( parse_str($request->server['query_string']) );
