@@ -131,7 +131,7 @@ class WebSocket
         // 打印日志
         echo "adminHandshake start\n";
         echo "server: ***admin*** handshake success with fd{$request->fd}\n";
-        
+
         print_r( $request );
         print_r( $request->cookie );
         print_r( $request->header );
@@ -198,9 +198,14 @@ class WebSocket
         // 打印日志
         echo "server: handshake success with fd{$request->fd}\n";
 
-        print_r( $request );
-        print_r( $request->cookie );
-        print_r( $request->header );
+        // print_r( $request );
+        // print_r( $request->cookie );
+        // print_r( $request->header );
+
+        // 拿到 `Authorization` 去请求接口数据
+        if (isset($request->server['query_string'])) {
+            print_r( $request->server['query_string'] );
+        }
 
         // print_r( $request->header );
         // if (如果不满足我某些自定义的需求条件，那么返回end输出，返回false，握手失败) {
