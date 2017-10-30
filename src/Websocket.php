@@ -129,13 +129,23 @@ class WebSocket
     public function adminHandshake(\swoole_http_request $request, \swoole_http_response $response) 
     {
         // 打印日志
+        echo "adminHandshake start\n";
         echo "server: ***admin*** handshake success with fd{$request->fd}\n";
-
+        print_r( $request->cookie );
         print_r( $request->header );
+
         // if (如果不满足我某些自定义的需求条件，那么返回end输出，返回false，握手失败) {
         //    $response->end();
         //     return false;
         // }
+        
+        // 自定定握手规则，没有设置则用系统内置的（只支持version:13的）
+        if (!isset($request->header['sec-websocket-key']))
+        {
+            //'Bad protocol implementation: it is not RFC6455.'
+            $response->end();
+            return false;
+        }
 
         // websocket握手连接算法验证
         $secWebSocketKey = $request->header['sec-websocket-key'];
@@ -182,9 +192,13 @@ class WebSocket
      */
     public function handshake(\swoole_http_request $request, \swoole_http_response $response) 
     {
+        echo "handshake start\n";
         // 打印日志
         echo "server: handshake success with fd{$request->fd}\n";
 
+        print_r( $request->cookie );
+        print_r( $request->header );
+        
         // print_r( $request->header );
         // if (如果不满足我某些自定义的需求条件，那么返回end输出，返回false，握手失败) {
         //    $response->end();
