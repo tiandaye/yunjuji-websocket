@@ -369,8 +369,13 @@ class WebSocket
             print_r($responseData);
             echo "\n";
             echo "接收到的值 end:\n";
-            if (isset($responseData['data']['id'])) {
-                $userId = $responseData['data']['id'];
+            if (isset($responseData['data'])) {
+                $data = json_encode($responseData['data'], true);
+                if (!isset($data['id'])) {
+                    $response->end();
+                    return false;
+                }
+                $userId = $data['id'];
                 // // 打印日志
                 // echo "server: handshake success with fd{$req->fd}\n";
 
