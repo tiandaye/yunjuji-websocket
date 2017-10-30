@@ -380,8 +380,8 @@ class WebSocket
                 $avatar   = 'thc';
                 $nickname = 'lwj';
                 // 映射存到redis
-                $this->storage->login($req->fd, [
-                    'id'       => $userId,// $req->fd,
+                $this->storage->login($request->fd, [
+                    'id'       => $userId,// $request->fd,
                     'user_id' => $userId,
                     'avatar'   => $avatar,
                     'nickname' => $nickname,
@@ -395,13 +395,13 @@ class WebSocket
 
                 // init selfs data
                 $userMsg = $this->buildMsg([
-                    'id'       => $userId,// $req->fd,
+                    'id'       => $userId,// $request->fd,
                     'avatar'   => $avatar,
                     'nickname' => $nickname,
                     'count'    => count($this->storage->getUsers($server->connections)),
                 ], self::INIT_SELF_TYPE);
                 $this->server->task([
-                    'to'     => [$req->fd],
+                    'to'     => [$request->fd],
                     'except' => [],
                     'data'   => $userMsg,
                 ]);
@@ -413,21 +413,21 @@ class WebSocket
                 }
                 $otherMsg = $this->buildMsg($others, self::INIT_OTHER_TYPE);
                 $this->server->task([
-                    'to'     => [$req->fd],
+                    'to'     => [$request->fd],
                     'except' => [],
                     'data'   => $otherMsg,
                 ]);
 
                 //broadcast a user is online
                 $msg = $this->buildMsg([
-                    'id'       => $userId,// $req->fd,
+                    'id'       => $userId,// $request->fd,
                     'avatar'   => $avatar,
                     'nickname' => $nickname,
                     'count'    => count($this->storage->getUsers($server->connections)),
                 ], self::CONNECT_TYPE);
                 $this->server->task([
                     'to'     => [],
-                    'except' => [$req->fd],
+                    'except' => [$request->fd],
                     'data'   => $msg,
                 ]);
             } else {
