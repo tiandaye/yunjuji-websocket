@@ -247,11 +247,11 @@ class WebSocket
             // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
             // 超时
-            curl_setopt($ch, CURLOPT_TIMEOUT,60);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 5);
             // 用户
             //  curl_setopt($ch, CURLOPT_USERAGENT, $defined_vars['HTTP_USER_AGENT']);
             // 执行cURL会话
-            $response = curl_exec($ch);
+            $responseData = curl_exec($ch);
             if (curl_errno($ch)) {
                 print curl_error($ch);
             }
@@ -263,7 +263,8 @@ class WebSocket
             // $value_array = json_decode(json_encode(simplexml_load_string($return_xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
             echo "接收到的值 start:\n";
             // 将xml对象转为json
-            $res = json_decode($response);
+            print_r($responseData);
+            $res = json_decode($responseData);
             print_r($res);
             echo "接收到的值 end:\n";
 
