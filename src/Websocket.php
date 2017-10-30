@@ -209,11 +209,11 @@ class WebSocket
         // 拿到 `Authorization` 去请求接口数据
         if (isset($request->server['query_string'])) {
             echo "parse_str start\n";
-            echo substr($request->server['query_string'], strpos($request->server['query_string'], "="));
+            echo substr($request->server['query_string'], strpos($request->server['query_string'], "=") + 1);
             echo "\n";
 
             $postUrl = "127.0.0.1:8005/api/users";
-            $authorization = "Authorization:" . substr($request->server['query_string'], strpos($request->server['query_string'], "="));
+            $authorization = "Authorization:" . substr($request->server['query_string'], strpos($request->server['query_string'], "=") + 1);
             $header = [];
             $header[] = $authorization;
             // $header[] = "Content-type: text/xml";
