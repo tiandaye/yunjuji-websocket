@@ -220,13 +220,6 @@ class WebSocket
             // $header[] = "Content-type: text/xml";
             // $header = ["Authorization:Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImExM2UwNDY3NTJmMmQxNDc0M2M1YzRhZTg2ZTlhZDU2MjM3MjU3ZTU3YWI3MWFlZDM0OGJkNDk5NjQ0YTQ0MmE5YjEyMzc4Mjk0MDViNWYzIn0.eyJhdWQiOiIyIiwianRpIjoiYTEzZTA0Njc1MmYyZDE0NzQzYzVjNGFlODZlOWFkNTYyMzcyNTdlNTdhYjcxYWVkMzQ4YmQ0OTk2NDRhNDQyYTliMTIzNzgyOTQwNWI1ZjMiLCJpYXQiOjE1MDgyMDIwNTUsIm5iZiI6MTUwODIwMjA1NSwiZXhwIjoxNTA5NDk4MDU0LCJzdWIiOiI3MzI0Iiwic2NvcGVzIjpbIioiXX0.q34mPCdJAzSHXZ7Trkf7vSnln8xluxsPQf3-v1ZEVZGfjGKoGyxxrzzjprsR7-Ui2f2gyu6ldk98O5VP4IyZBaYopDa4AQjLa_anzvvcZvONm5CDwumevDvuDKkR_BesLuBivNWEAVn3tKgjwRTShXWsbKE9xNmIJVPgD8gq1suux2puyo7XNGBvq5B-BpyPKqat4JZOzUAQ6vZ_R3c7TDBPFaPwjS0j22EhPTemzrl0AQmD7uByAMcnFpqEXmsWRlfAJwv3100yxpA2HYpi-5qi1TYAcHnKbkrGe8tFzB8EZTw7NiWRAcJ0WBuzMK23IFxEdwX3sDK67dRum769IgFW3R2eCodAuRlXjMek8Rk_c20gk4VOniozhgsAZ-o-5X6xyJP84L5Qn_xhSFJ6jW2ZWbJWs_lPwrmiTFV7h_UsWOHXKLqKRaI1xm9u03GAZ4NLRs5uNqJEgwXCdVT4XUfHneZ_urJJbsKr1_cQNGCQ87H-dj_qIkXOkXzPxDJjyc3RAsTEpo6A6wW1v7GeFcsjpvM-mG2zehEohNeBHswzGze2Lyjj4dPAdTzNNtuvxRrA5vruqmyQeu6dSe4zKDq4-qWj3pgzbE0hAxpHZOISV5IMR8S2OaXlNetc_Uo8byRstWPA0vQcwDEViiU70n_pUmXslkzvr_PPRYrg7mI"];
             $post_data = [];
-            // $post_data["broadband_account"] = "11111111111";
-            // $codes = ["HWTC06A7529A", "HWTC06A7539A", "HWTC06A7559A", "HWTC06A7569A", "HWTC06A7579A", "HWTC06A75E9A"];
-            // // $random = rand(0, 5);
-            // // $post_data["code_id"] = $codes[$random];
-            // $post_data["code_id"] = "HWTC06A76C9A";
-            // $post_data["note"] = "";
-            // $post_data["order_kind"] = null;
             // $post_data["price"] = 180.00;
 
             // 注入调用的地址
@@ -263,16 +256,75 @@ class WebSocket
             //先把xml转换为simplexml对象，再把simplexml对象转换成 json，再将 json 转换成数组。
             // $value_array = json_decode(json_encode(simplexml_load_string($return_xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
             echo "接收到的值 start:\n";
-            // 将xml对象转为json
             print_r($responseData);
-            $res = json_decode($responseData);
-            print_r($res);
+            $responseData = json_decode($responseData);
+            print_r($responseData);
             echo "接收到的值 end:\n";
+            if ($userId = isset($responseData['id'])) {
+                // 打印日志
+                echo "server: handshake success with fd{$req->fd}\n";
 
-            // print_r( $request->server['query_string'] );
-            // print_r( parse_str($request->server['query_string']) );
+                $avatar   = 'thc';
+                $nickname = 'lwj';
+                // 映射存到redis
+                $this->storage->login($req->fd, [
+                    'id'       => $userId,// $req->fd,
+                    'user_id' => $userId,
+                    'avatar'   => $avatar,
+                    'nickname' => $nickname,
+                ]);
+                // $resMsg = array(
+                //     'cmd' => 'login',
+                //     'fd' => $client_id,
+                //     'name' => $info['name'],
+                //     'avatar' => $info['avatar'],
+                // );
+
+                // init selfs data
+                $userMsg = $this->buildMsg([
+                    'id'       => $userId,// $req->fd,
+                    'avatar'   => $avatar,
+                    'nickname' => $nickname,
+                    'count'    => count($this->storage->getUsers($server->connections)),
+                ], self::INIT_SELF_TYPE);
+                $this->server->task([
+                    'to'     => [$req->fd],
+                    'except' => [],
+                    'data'   => $userMsg,
+                ]);
+
+                // init others data
+                $others = [];
+                foreach ($server->connections as $row) {
+                    $others[] = $row;
+                }
+                $otherMsg = $this->buildMsg($others, self::INIT_OTHER_TYPE);
+                $this->server->task([
+                    'to'     => [$req->fd],
+                    'except' => [],
+                    'data'   => $otherMsg,
+                ]);
+
+                //broadcast a user is online
+                $msg = $this->buildMsg([
+                    'id'       => $userId,// $req->fd,
+                    'avatar'   => $avatar,
+                    'nickname' => $nickname,
+                    'count'    => count($this->storage->getUsers($server->connections)),
+                ], self::CONNECT_TYPE);
+                $this->server->task([
+                    'to'     => [],
+                    'except' => [$req->fd],
+                    'data'   => $msg,
+                ]);
+            } else {
+                $response->end();
+                return false;
+            }
+        } else {
+            $response->end();
+            return false;
         }
-
         // print_r( parse_str($request->server['query_string']) );
 
         // print_r( $request->header );
