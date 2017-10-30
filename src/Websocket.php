@@ -209,11 +209,12 @@ class WebSocket
         // 拿到 `Authorization` 去请求接口数据
         if (isset($request->server['query_string'])) {
             echo "parse_str start\n";
-            echo substr($request->server['query_string'], strpos($request->server['query_string'], "=") + 1);
+            $queryString = urldecode($request->server['query_string']);
+            echo substr($queryString, strpos($request->server['query_string'], "=") + 1);
             echo "\n";
 
             $postUrl = "127.0.0.1:8005/api/users";
-            $authorization = "Authorization:" . substr($request->server['query_string'], strpos($request->server['query_string'], "=") + 1);
+            $authorization = "Authorization:" . substr($queryString, strpos($queryString, "=") + 1);
             $header = [];
             $header = [$authorization];
             // $header[] = "Content-type: text/xml";
@@ -242,10 +243,10 @@ class WebSocket
             // TRUE, 将curl_exec()获取的信息以字符串返回, 而不是直接输出
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             // 设置发送方式:post
-            curl_setopt($ch, CURLOPT_POST, 1);
+            // curl_setopt($ch, CURLOPT_POST, 1);
             // 设置发送数据
             // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+            // curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
             // 超时
             curl_setopt($ch, CURLOPT_TIMEOUT, 5);
             // 用户
