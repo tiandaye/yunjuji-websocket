@@ -137,7 +137,7 @@ class WebSocket
         print_r( $request->header );
 
         // 自定义鉴权
-        $postUrl = "127.0.0.1:8006/admin/authorization";
+        $postUrl = "http://127.0.0.1:8006/admin/authorization";
         $header = [];
         // $header[] = "Content-type: text/xml";
 
@@ -320,7 +320,7 @@ class WebSocket
             echo substr($queryString, strpos($request->server['query_string'], "=") + 1);
             echo "\n";
 
-            $postUrl = "127.0.0.1:8005/api/authorization";
+            $postUrl = "http://127.0.0.1:8005/api/authorization";
             $authorization = "Authorization:" . substr($queryString, strpos($queryString, "=") + 1);
             $header = [];
             $header = [$authorization];
