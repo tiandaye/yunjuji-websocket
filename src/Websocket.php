@@ -258,7 +258,7 @@ class WebSocket
             echo "接收到的值 start:\n";
             print_r($responseData);
             echo "\n";
-            $responseData = json_decode($responseData);
+            $responseData = json_decode($responseData, true);
             print_r($responseData);
             echo "\n";
             echo "接收到的值 end:\n";
