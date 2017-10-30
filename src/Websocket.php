@@ -368,11 +368,13 @@ class WebSocket
                 // echo "data start\n";
                 // print_r($responseData['data']);
                 $data = json_decode($responseData['data'], true);
+                echo "用户信息:\n";
                 print_r($data);
                 if (!isset($data['id'])) {
                     $response->end();
                     return false;
                 }
+                echo "$data['id']:\n";
                 // echo "data end\n";
                 $userId = $data['id'];
 
