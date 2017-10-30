@@ -398,7 +398,7 @@ class WebSocket
                     'id'       => $userId,// $request->fd,
                     'avatar'   => $avatar,
                     'nickname' => $nickname,
-                    'count'    => count($this->storage->getUsers($server->connections)),
+                    // 'count'    => count($this->storage->getUsers($server->connections)),
                 ], self::INIT_SELF_TYPE);
                 $this->server->task([
                     'to'     => [$request->fd],
@@ -408,9 +408,9 @@ class WebSocket
 
                 // init others data
                 $others = [];
-                foreach ($server->connections as $row) {
-                    $others[] = $row;
-                }
+                // foreach ($server->connections as $row) {
+                //     $others[] = $row;
+                // }
                 $otherMsg = $this->buildMsg($others, self::INIT_OTHER_TYPE);
                 $this->server->task([
                     'to'     => [$request->fd],
@@ -423,7 +423,7 @@ class WebSocket
                     'id'       => $userId,// $request->fd,
                     'avatar'   => $avatar,
                     'nickname' => $nickname,
-                    'count'    => count($this->storage->getUsers($server->connections)),
+                    // 'count'    => count($this->storage->getUsers($server->connections)),
                 ], self::CONNECT_TYPE);
                 $this->server->task([
                     'to'     => [],
