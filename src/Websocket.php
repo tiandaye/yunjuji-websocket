@@ -204,15 +204,18 @@ class WebSocket
 
         echo "query_string start\n";
         print_r( $request->server['query_string'] );
+        echo "\n";
 
         // 拿到 `Authorization` 去请求接口数据
         if (isset($request->server['query_string'])) {
+            echo "parse_str start\n";
+            echo strpos($request->server['query_string'], "=");
+            echo "\n";
             // print_r( $request->server['query_string'] );
-            print_r( parse_str($request->server['query_string']) );
+            // print_r( parse_str($request->server['query_string']) );
         }
 
-        echo "parse_str start\n";
-        print_r( parse_str($request->server['query_string']) );
+        // print_r( parse_str($request->server['query_string']) );
 
         // print_r( $request->header );
         // if (如果不满足我某些自定义的需求条件，那么返回end输出，返回false，握手失败) {
