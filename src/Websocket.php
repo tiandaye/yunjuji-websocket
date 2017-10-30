@@ -257,10 +257,12 @@ class WebSocket
             // $value_array = json_decode(json_encode(simplexml_load_string($return_xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
             echo "接收到的值 start:\n";
             print_r($responseData);
+            echo "\n";
             $responseData = json_decode($responseData);
             print_r($responseData);
+            echo "\n";
             echo "接收到的值 end:\n";
-            if ($userId = isset($responseData['id'])) {
+            if ($userId = isset($responseData['data']['id'])) {
                 // 打印日志
                 echo "server: handshake success with fd{$req->fd}\n";
 
