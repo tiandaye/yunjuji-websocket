@@ -213,7 +213,7 @@ class WebSocket
             echo substr($queryString, strpos($request->server['query_string'], "=") + 1);
             echo "\n";
 
-            $postUrl = "127.0.0.1:8005/api/users";
+            $postUrl = "127.0.0.1:8005/api/authorization";
             $authorization = "Authorization:" . substr($queryString, strpos($queryString, "=") + 1);
             $header = [];
             $header = [$authorization];
