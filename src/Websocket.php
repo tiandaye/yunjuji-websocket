@@ -357,32 +357,25 @@ class WebSocket
                 print curl_error($ch);
             }
             curl_close($ch);
-            // post的数据为xml字符串，通过 $xml = simplexml_load_string($post_data);转换成xml对象
-            // $xml = simplexml_load_string($response);
 
-            //先把xml转换为simplexml对象，再把simplexml对象转换成 json，再将 json 转换成数组。
-            // $value_array = json_decode(json_encode(simplexml_load_string($return_xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true);
-            echo "接收到的值 start:\n";
-            print_r($responseData);
-            echo "\n";
+            // echo "接收到的值 start:\n";
+            // print_r($responseData);
+            // echo "\n";
             $responseData = json_decode($responseData, true);
-            print_r($responseData);
-            echo "\n";
-            echo "接收到的值 end:\n";
+            // print_r($responseData);
+            // echo "\n";
+            // echo "接收到的值 end:\n";
             if (isset($responseData['data'])) {
-                echo "data start:\n";
-                print_r($responseData['data']);
+                // echo "data start\n";
+                // print_r($responseData['data']);
                 $data = json_decode($responseData['data'], true);
                 print_r($data);
                 if (!isset($data['id'])) {
-                     echo "*************************************id\n";
                     $response->end();
                     return false;
                 }
-                echo "data end:\n";
+                // echo "data end\n";
                 $userId = $data['id'];
-                // // 打印日志
-                // echo "server: handshake success with fd{$req->fd}\n";
 
                 // $avatar   = 'thc';
                 // $nickname = 'lwj';
