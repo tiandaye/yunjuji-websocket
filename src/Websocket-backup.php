@@ -1,22 +1,55 @@
 <?php
+/**
+ *   the format of json
+ *
+ *   CONNECT
+ *   {
+status : 200,
+type : 'connect',
+data : {
+id : 0,
+avatar : '',
+nickname : ''
+}
+}
+DISCONNECT
+{
+status : 200,
+type : 'disconnect',
+data : {
+id : 0
+}
+}
+MESSAGE
+{
+status : 200,
+type : 'message',
+data : {
+from : 0,
+to : 0,
+msg : ''
+}
+}
+INIT
+{
+status : 200,
+type : 'init',
+data : {
 
+}
+}
+ *
+ */
 namespace Yunjuji\WebSocket;
 
 class WebSocket
 {
-    // 连接
     const CONNECT_TYPE    = 'connect';
-    // 断开连接
     const DISCONNECT_TYPE = 'disconnect';
-    // 消息发送
     const MESSAGE_TYPE    = 'message';
-    // 初始化自身数据
     const INIT_SELF_TYPE  = 'self_init';
-    // 初始化其他数据
     const INIT_OTHER_TYPE = 'other_init';
-    // 在线人数
     const COUNT_TYPE      = 'count';
-    // 头像
     private $avatars      = [
         'http://e.hiphotos.baidu.com/image/h%3D200/sign=08f4485d56df8db1a32e7b643922dddb/1ad5ad6eddc451dad55f452ebefd5266d116324d.jpg',
         'http://tva3.sinaimg.cn/crop.0.0.746.746.50/a157f83bjw8f5rr5twb5aj20kq0kqmy4.jpg',
@@ -29,21 +62,14 @@ class WebSocket
         'http://tva2.sinaimg.cn/crop.0.0.996.996.50/6c351711jw8f75bqc32hsj20ro0roac4.jpg',
         'http://tva2.sinaimg.cn/crop.0.0.180.180.50/6aba55c9jw1e8qgp5bmzyj2050050aa8.jpg',
     ];
-    // 昵称
     private $nicknames = [
         '沉淀', '暖寄归人', '厌世症i', '难免心酸°', '過客。', '昔日餘光。', '独特', '有爱就有恨', '共度余生', '忆七年', '单人旅行', '何日许我红装', '醉落夕风',
     ];
-    // 手机端-服务端
     private $server;
-    // 后台-服务端
     private $adminServer;
-    // 手机端-服务端-ip
     private $host;
-    // 手机端-服务端-port
     private $port;
-    // 配置
     private $config;
-    // redis操作
     private $storage;
 
     /**
@@ -350,7 +376,7 @@ class WebSocket
                     'nickname' => $nickname,
                     'count'    => 1,
                     'cmd' => 'login',
-                    'fd' => $request->fd,
+                    'fd' => $client_id,
                     // 'count'    => count($this->storage->getUsers($server->connections)),
                 ], self::INIT_SELF_TYPE);
                 $this->server->task([
