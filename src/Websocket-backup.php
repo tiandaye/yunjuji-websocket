@@ -187,13 +187,13 @@ class WebSocket
 
         // 自定义鉴权
         $postUrl = "http://127.0.0.1:8006/admin/authorization";
-        $headers  = [];
+        $headers = [];
         $cookies = [];
         foreach ($request->header as $key => $value) {
             $headers[] = $key . ':' . $value;
         }
         foreach ($request->cookie as $key => $value) {
-             $cookies[] = $key . ':' . $value;
+            $cookies[] = $key . ':' . $value;
         }
         print_r($headers);
         print_r($cookies);
@@ -241,59 +241,58 @@ class WebSocket
             // // 打印日志
             // echo "server: handshake success with fd{$req->fd}\n";
 
-            // $avatar   = 'thc';
-            // $nickname = 'lwj';
-            // // 映射存到redis
-            // $this->storage->login($req->fd, [
-            //     'id'       => $userId,// $req->fd,
-            //     'user_id' => $userId,
-            //     'avatar'   => $avatar,
-            //     'nickname' => $nickname,
-            // ]);
-            // // $resMsg = array(
-            // //     'cmd' => 'login',
-            // //     'fd' => $client_id,
-            // //     'name' => $info['name'],
-            // //     'avatar' => $info['avatar'],
-            // // );
+            $avatar   = 'thc';
+            $nickname = 'lwj';
+            // 映射存到redis
+            $this->storage->login($req->fd, [
+                'id'       => $userId,
+                'user_id'  => $userId,
+                'avatar'   => $avatar,
+                'nickname' => $nickname,
+                'fd'       => $req->fd,
+            ]);
 
-            // // init selfs data
-            // $userMsg = $this->buildMsg([
-            //     'id'       => $userId,// $req->fd,
-            //     'avatar'   => $avatar,
-            //     'nickname' => $nickname,
-            //     'count'    => count($this->storage->getUsers($server->connections)),
-            // ], self::INIT_SELF_TYPE);
-            // $this->server->task([
-            //     'to'     => [$req->fd],
-            //     'except' => [],
-            //     'data'   => $userMsg,
-            // ]);
+            // init selfs data
+            $userMsg = $this->buildMsg([
+                'id'       => $userId,
+                'avatar'   => $avatar,
+                'nickname' => $nickname,
+                'cmd'      => 'login',
+                'fd'       => $request->fd,
+                'count' => 1,
+                // 'count'    => count($this->storage->getUsers($server->connections)),
+            ], self::INIT_SELF_TYPE);
+            $this->server->task([
+                'to'     => [$req->fd],
+                'except' => [],
+                'data'   => $userMsg,
+            ]);
 
-            // // init others data
-            // $others = [];
+            // init others data
+            $others = [];
             // foreach ($server->connections as $row) {
             //     $others[] = $row;
             // }
-            // $otherMsg = $this->buildMsg($others, self::INIT_OTHER_TYPE);
-            // $this->server->task([
-            //     'to'     => [$req->fd],
-            //     'except' => [],
-            //     'data'   => $otherMsg,
-            // ]);
+            $otherMsg = $this->buildMsg($others, self::INIT_OTHER_TYPE);
+            $this->server->task([
+                'to'     => [$req->fd],
+                'except' => [],
+                'data'   => $otherMsg,
+            ]);
 
-            // //broadcast a user is online
-            // $msg = $this->buildMsg([
-            //     'id'       => $userId,// $req->fd,
-            //     'avatar'   => $avatar,
-            //     'nickname' => $nickname,
-            //     'count'    => count($this->storage->getUsers($server->connections)),
-            // ], self::CONNECT_TYPE);
-            // $this->server->task([
-            //     'to'     => [],
-            //     'except' => [$req->fd],
-            //     'data'   => $msg,
-            // ]);
+            //broadcast a user is online
+            $msg = $this->buildMsg([
+                'id'       => $userId, // $req->fd,
+                'avatar'   => $avatar,
+                'nickname' => $nickname,
+                'count' => 1,
+                // 'count'    => count($this->storage->getUsers($server->connections)),
+            ], self::CONNECT_TYPE);
+            $this->server->task([
+                'to'     => [],
+                'except' => [$req->fd],
+                'data'   => $msg,
+            ]);
         } else {
             $response->end();
             return false;

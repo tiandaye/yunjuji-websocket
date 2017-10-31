@@ -5,19 +5,19 @@ namespace Yunjuji\WebSocket;
 class WebSocket
 {
     // 连接
-    const CONNECT_TYPE    = 'connect';
+    const CONNECT_TYPE = 'connect';
     // 断开连接
     const DISCONNECT_TYPE = 'disconnect';
     // 消息发送
-    const MESSAGE_TYPE    = 'message';
+    const MESSAGE_TYPE = 'message';
     // 初始化自身数据
-    const INIT_SELF_TYPE  = 'self_init';
+    const INIT_SELF_TYPE = 'self_init';
     // 初始化其他数据
     const INIT_OTHER_TYPE = 'other_init';
     // 在线人数
-    const COUNT_TYPE      = 'count';
+    const COUNT_TYPE = 'count';
     // 头像
-    private $avatars      = [
+    private $avatars = [
         'http://e.hiphotos.baidu.com/image/h%3D200/sign=08f4485d56df8db1a32e7b643922dddb/1ad5ad6eddc451dad55f452ebefd5266d116324d.jpg',
         'http://tva3.sinaimg.cn/crop.0.0.746.746.50/a157f83bjw8f5rr5twb5aj20kq0kqmy4.jpg',
         'http://www.ld12.com/upimg358/allimg/c150627/14353W345a130-Q2B.jpg',
@@ -121,7 +121,7 @@ class WebSocket
             $response->end();
             return false;
         }
-        echo "sec-websocket-key:" . $request->header['sec-websocket-key'];
+        // echo "sec-websocket-key:" . $request->header['sec-websocket-key'];
         $key = base64_encode(sha1(
             $request->header['sec-websocket-key'] . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11',
             true
@@ -147,131 +147,8 @@ class WebSocket
 
         $response->status(101);
         $response->end();
-        echo "connected!" . PHP_EOL;
+        echo "client ". $request->fd . " connected!" . PHP_EOL;
         return true;
-
-
-        // 打印日志
-        echo "adminHandshake start\n";
-        echo "server: ***admin*** handshake success with fd{$request->fd}\n";
-
-        print_r($request);
-        print_r($request->cookie);
-        print_r($request->header);
-
-        // 自定义鉴权
-        $postUrl = "http://127.0.0.1:8006/admin/authorization";
-        $headers  = [];
-        $cookies = [];
-        foreach ($request->header as $key => $value) {
-            $headers[] = $key . ':' . $value;
-        }
-        foreach ($request->cookie as $key => $value) {
-             $cookies[] = $key . ':' . $value;
-        }
-        print_r($headers);
-        print_r($cookies);
-        // $header[] = "Content-type: text/xml";
-
-        // 注入调用的地址
-        $url = $postUrl;
-        //首先检测是否支持curl
-        if (!extension_loaded("curl")) {
-            trigger_error("对不起，请开启curl功能模块！", E_USER_ERROR);
-        }
-        // 初始一个curl会话
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        // 设置url
-        curl_setopt($ch, CURLOPT_URL, $url);
-        // TRUE, 将curl_exec()获取的信息以字符串返回, 而不是直接输出
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        // 设置发送方式:post
-        // curl_setopt($ch, CURLOPT_POST, 1);
-        // 设置发送数据
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
-        // 超时
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        // 设置cookie
-        curl_setopt($ch, CURLOPT_COOKIE, $cookies);
-        // 用户
-        // curl_setopt($ch, CURLOPT_USERAGENT, $defined_vars['HTTP_USER_AGENT']);
-        // 执行cURL会话
-        $responseData = curl_exec($ch);
-        if (curl_errno($ch)) {
-            print curl_error($ch);
-        }
-        curl_close($ch);
-        echo "接收到的值 start:\n";
-        print_r($responseData);
-        echo "\n";
-        $responseData = json_decode($responseData, true);
-        print_r($responseData);
-        echo "\n";
-        echo "接收到的值 end\n";
-        if (isset($responseData['data']['id'])) {
-            $userId = $responseData['data']['id'];
-            // // 打印日志
-            // echo "server: handshake success with fd{$req->fd}\n";
-
-            // $avatar   = 'thc';
-            // $nickname = 'lwj';
-            // // 映射存到redis
-            // $this->storage->login($req->fd, [
-            //     'id'       => $userId,// $req->fd,
-            //     'user_id' => $userId,
-            //     'avatar'   => $avatar,
-            //     'nickname' => $nickname,
-            // ]);
-            // // $resMsg = array(
-            // //     'cmd' => 'login',
-            // //     'fd' => $client_id,
-            // //     'name' => $info['name'],
-            // //     'avatar' => $info['avatar'],
-            // // );
-
-            // // init selfs data
-            // $userMsg = $this->buildMsg([
-            //     'id'       => $userId,// $req->fd,
-            //     'avatar'   => $avatar,
-            //     'nickname' => $nickname,
-            //     'count'    => count($this->storage->getUsers($server->connections)),
-            // ], self::INIT_SELF_TYPE);
-            // $this->server->task([
-            //     'to'     => [$req->fd],
-            //     'except' => [],
-            //     'data'   => $userMsg,
-            // ]);
-
-            // // init others data
-            // $others = [];
-            // foreach ($server->connections as $row) {
-            //     $others[] = $row;
-            // }
-            // $otherMsg = $this->buildMsg($others, self::INIT_OTHER_TYPE);
-            // $this->server->task([
-            //     'to'     => [$req->fd],
-            //     'except' => [],
-            //     'data'   => $otherMsg,
-            // ]);
-
-            // //broadcast a user is online
-            // $msg = $this->buildMsg([
-            //     'id'       => $userId,// $req->fd,
-            //     'avatar'   => $avatar,
-            //     'nickname' => $nickname,
-            //     'count'    => count($this->storage->getUsers($server->connections)),
-            // ], self::CONNECT_TYPE);
-            // $this->server->task([
-            //     'to'     => [],
-            //     'except' => [$req->fd],
-            //     'data'   => $msg,
-            // ]);
-        } else {
-            $response->end();
-            return false;
-        }
     }
 
     /**
@@ -282,7 +159,6 @@ class WebSocket
      */
     public function handshake(\swoole_http_request $request, \swoole_http_response $response)
     {
-        echo "handshake start\n";
         // 打印日志
         echo "server: handshake start with fd{$request->fd}\n";
 
@@ -293,8 +169,8 @@ class WebSocket
 
         // 自定义鉴权
         if (isset($request->server['query_string'])) {
-            $url       = "http://127.0.0.1:8005/api/authorization";
-            $queryString = urldecode($request->server['query_string']);
+            $url           = "http://127.0.0.1:8005/api/authorization";
+            $queryString   = urldecode($request->server['query_string']);
             $authorization = "Authorization:" . substr($queryString, strpos($queryString, "=") + 1);
             $header        = [];
             $header        = [$authorization];
@@ -312,7 +188,6 @@ class WebSocket
             // 设置发送方式:post
             // curl_setopt($ch, CURLOPT_POST, 1);
             // 设置发送数据
-            // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
             // curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
             // 超时
             curl_setopt($ch, CURLOPT_TIMEOUT, 5);
@@ -331,59 +206,54 @@ class WebSocket
                     $response->end();
                     return false;
                 }
-                $userId = $data['id'];
-                $avatar   = 'thc';
-                $nickname = 'lwj';
+                $userId   = $data['id'];
+
                 // 映射存到redis
                 $this->storage->login($request->fd, [
-                    'id'       => $userId, // 
+                    'id'       => $userId,
                     'user_id'  => $userId,
-                    'avatar'   => $avatar,
-                    'nickname' => $nickname,
-                    'fd' => $request->fd,
+                    'fd'       => $request->fd,
                 ]);
 
-                // init selfs data
-                $userMsg = $this->buildMsg([
-                    'id'       => $userId, // $request->fd,
-                    'avatar'   => $avatar,
-                    'nickname' => $nickname,
-                    'count'    => 1,
-                    'cmd' => 'login',
-                    'fd' => $request->fd,
-                    // 'count'    => count($this->storage->getUsers($server->connections)),
-                ], self::INIT_SELF_TYPE);
-                $this->server->task([
-                    'to'     => [$request->fd],
-                    'except' => [],
-                    'data'   => $userMsg,
-                ]);
+                // // init selfs data
+                // $userMsg = $this->buildMsg([
+                //     'id'       => $userId,
+                //     'avatar'   => $avatar,
+                //     'nickname' => $nickname,
+                //     'cmd'      => 'login',
+                //     'fd'       => $request->fd,
+                //     'count'    => $this->storage->count(),
+                // ], self::INIT_SELF_TYPE);
+                // $this->server->task([
+                //     'to'     => [$request->fd],
+                //     'except' => [],
+                //     'data'   => $userMsg,
+                // ]);
 
-                // init others data
-                $others = [];
-                // foreach ($server->connections as $row) {
-                //     $others[] = $row;
-                // }
-                $otherMsg = $this->buildMsg($others, self::INIT_OTHER_TYPE);
-                $this->server->task([
-                    'to'     => [$request->fd],
-                    'except' => [],
-                    'data'   => $otherMsg,
-                ]);
+                // // init others data
+                // $others = [];
+                // // foreach ($server->connections as $row) {
+                // //     $others[] = $row;
+                // // }
+                // $otherMsg = $this->buildMsg($others, self::INIT_OTHER_TYPE);
+                // $this->server->task([
+                //     'to'     => [$request->fd],
+                //     'except' => [],
+                //     'data'   => $otherMsg,
+                // ]);
 
-                //broadcast a user is online
-                $msg = $this->buildMsg([
-                    'id'       => $userId, // $request->fd,
-                    'avatar'   => $avatar,
-                    'nickname' => $nickname,
-                    'count'    => 1,
-                    // 'count'    => count($this->storage->getUsers($server->connections)),
-                ], self::CONNECT_TYPE);
-                $this->server->task([
-                    'to'     => [],
-                    'except' => [$request->fd],
-                    'data'   => $msg,
-                ]);
+                // //broadcast a user is online
+                // $msg = $this->buildMsg([
+                //     'id'       => $userId, // $request->fd,
+                //     'avatar'   => $avatar,
+                //     'nickname' => $nickname,
+                //     'count'    => $this->storage->count(),
+                // ], self::CONNECT_TYPE);
+                // $this->server->task([
+                //     'to'     => [],
+                //     'except' => [$request->fd],
+                //     'data'   => $msg,
+                // ]);
             } else {
                 $response->end();
                 return false;
@@ -406,8 +276,8 @@ class WebSocket
             $response->end();
             return false;
         }
-        echo "sec-websocket-key:" . $request->header['sec-websocket-key'];
-        echo "\n";
+        // echo "sec-websocket-key:" . $request->header['sec-websocket-key'] . "\n";
+
         $key = base64_encode(sha1(
             $request->header['sec-websocket-key'] . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11',
             true
@@ -433,7 +303,7 @@ class WebSocket
 
         $response->status(101);
         $response->end();
-        echo "connected!" . PHP_EOL;
+        echo "client ". $request->fd . " connected!" . PHP_EOL;
         return true;
     }
 
@@ -533,15 +403,15 @@ class WebSocket
                 case 'login':
                     // 映射存到redis
                     $this->storage->login($frame->fd, [
-                        'id'       => $data['id'],
-                        'user_id'  => $data['id'],
-                        'avatar'   => $data['avatar'],
-                        'name' => $data['name'],
+                        'id'        => $data['id'],
+                        'user_id'   => $data['id'],
+                        'avatar'    => $data['avatar'],
+                        'name'      => $data['name'],
                         'user_name' => $data['username'],
-                        'fd' => $frame->fd,
+                        'fd'        => $frame->fd,
                     ]);
                     break;
-                
+
                 default:
 
                     break;
@@ -631,13 +501,6 @@ class WebSocket
         ]);
     }
 }
-
-
-
-
-
-
-
 
 /**
  * 使用框架的写法

@@ -4,7 +4,7 @@
  * @Author: admin
  * @Date:   2017-10-26 11:38:13
  * @Last Modified by:   admin
- * @Last Modified time: 2017-10-26 17:03:25
+ * @Last Modified time: 2017-10-31 17:35:37
  */
 namespace Yunjuji\WebSocket;
 
@@ -67,6 +67,14 @@ class Storage
         $this->redis->del(self::PREFIX . ':client:' . $client_id);
         // 删除 `Key` 中指定的 `value` 值
         $this->redis->sRemove(self::PREFIX . ':online', $client_id);
+    }
+
+    /**
+     * [count 获得用户数]
+     * @return [type] [description]
+     */
+    public function count() {
+        return $this->redis->sSize(self::PREFIX . ':online');
     }
 
     /**
