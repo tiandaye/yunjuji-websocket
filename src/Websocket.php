@@ -414,7 +414,7 @@ class WebSocket
                     break;
                 // 指定派单
                 case 'dispatch_order':
-                    $msg  = $this->buildMsg($receive, 'dispatch_order');
+                    $msg  = $this->buildMsg($receive['data'], 'dispatch_order');
                     break;
                 default:
 
@@ -427,6 +427,17 @@ class WebSocket
             'except' => [$frame->fd],
             'data'   => $msg,
         ];
+
+        echo "要发送的用户id:";
+        echo "\n";
+        var_dump($receive['to']);
+        echo "\n";
+
+        echo "客户端id:";
+        echo "\n";
+        var_dump($this->redis->getClients([$receive['to']]));
+        echo "\n";
+
         if (isset($receive['to']) && $receive['to'] != 0) {
             // 发送给多个还是单个用户
             if (is_array($receive['to'])) {

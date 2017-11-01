@@ -4,7 +4,7 @@
  * @Author: admin
  * @Date:   2017-10-26 11:38:13
  * @Last Modified by:   admin
- * @Last Modified time: 2017-11-01 22:55:06
+ * @Last Modified time: 2017-11-01 23:16:43
  */
 namespace Yunjuji\WebSocket;
 
@@ -39,8 +39,8 @@ class Storage
         $this->redis->connect($config['master']['host'], $config['master']['port']);
         // 删除指定的键
         $this->redis->delete(self::PREFIX . ':online');
-        $this->redis->delete($this->redis->keys('client*'));
-        $this->redis->delete($this->redis->keys('user*'));
+        $this->redis->delete($this->redis->keys(self::PREFIX . ':client:*'));
+        $this->redis->delete($this->redis->keys(self::PREFIX . ':user:*'));
     }
 
     /**
