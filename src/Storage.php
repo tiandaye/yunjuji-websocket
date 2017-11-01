@@ -4,7 +4,7 @@
  * @Author: admin
  * @Date:   2017-10-26 11:38:13
  * @Last Modified by:   admin
- * @Last Modified time: 2017-11-01 23:16:43
+ * @Last Modified time: 2017-11-01 23:35:07
  */
 namespace Yunjuji\WebSocket;
 
@@ -109,8 +109,18 @@ class Storage
         foreach ($users as $v) {
             $keys[] = self::PREFIX . ':user:' . $v;
         }
+        
+        echo "Storage keys:";
+        echo "\n";
+        var_dump($keys);
+        echo "\n";
+
         // 返回所查询键的值
         $info = $this->redis->mget($keys);
+
+        var_dump($info);
+        echo "\n";
+
         foreach ($info as $v) {
             $ret[] = json_decode($v, true);
         }

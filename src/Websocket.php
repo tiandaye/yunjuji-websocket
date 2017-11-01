@@ -396,6 +396,8 @@ class WebSocket
         $msg = '';
         // 接受的数据格式{"type":"", "data":{}}
         if (isset($receive['type']) && isset($receive['data'])) {
+            echo "有type和data数据";
+        echo "\n";
             $type = $receive['type'];
             $data = $receive['data'];
 
