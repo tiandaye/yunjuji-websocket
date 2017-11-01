@@ -4,7 +4,7 @@
  * @Author: admin
  * @Date:   2017-10-26 11:38:13
  * @Last Modified by:   admin
- * @Last Modified time: 2017-10-31 17:35:37
+ * @Last Modified time: 2017-11-01 09:35:10
  */
 namespace Yunjuji\WebSocket;
 
@@ -49,8 +49,12 @@ class Storage
      */
     public function login($client_id, $info)
     {
-        // 设置 `key` 和 `value` 的值
+        // 设置 `key` 和 `value` 的值(fd=>用户信息)
         $this->redis->set(self::PREFIX . ':client:' . $client_id, json_encode($info));
+        if (isset($info['user_id'])) {
+            // (用户id=>fd)
+            $this->redis->set(self::PREFIX . ':user:' . $info['user_id'], $client_id);
+        }
         // 为一个 `Key` 添加一个值。如果这个值已经在这个 `Key` 中，则返回 `FALSE`
         $this->redis->sAdd(self::PREFIX . ':online', $client_id);
     }
@@ -63,7 +67,11 @@ class Storage
     public function logout($client_id)
     {
         // 删除 `key`，支持数组批量删除【返回删除个数】
-        // $redis->delete($key_str,$key2,$key3);//删除keys,[del_num]
+        $userInfo  = json_decode($this->redis->get(self::PREFIX . ':client:' . $client_id), true);
+        if (isset($userInfo['user_id'])) {
+            $this->redis->del(self::PREFIX . ':user:' . $userInfo['user_id']);
+        }
+        // $redis->delete($key_str,$key2,$key3);// 删除keys,[del_num]
         $this->redis->del(self::PREFIX . ':client:' . $client_id);
         // 删除 `Key` 中指定的 `value` 值
         $this->redis->sRemove(self::PREFIX . ':online', $client_id);
