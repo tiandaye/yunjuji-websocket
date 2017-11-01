@@ -393,6 +393,7 @@ class WebSocket
         echo "接受的数据:";
         echo json_encode($receive);
         echo "\n";
+        $msg = '';
         // 接受的数据格式{"type":"", "data":{}}
         if (isset($receive['type']) && isset($receive['data'])) {
             $type = $receive['type'];
@@ -411,21 +412,32 @@ class WebSocket
                         'fd'        => $frame->fd,
                     ]);
                     break;
-
+                // 指定派单
+                case 'dispatch_order':
+                    $msg  = $this->buildMsg($receive, 'dispatch_order');
+                    break;
                 default:
 
                     break;
             }
         }
 
-        $msg  = $this->buildMsg($receive, self::MESSAGE_TYPE);
         $task = [
             'to'     => [],
             'except' => [$frame->fd],
             'data'   => $msg,
         ];
         if (isset($receive['to']) && $receive['to'] != 0) {
-            $task['to'] = [$receive['to']];
+            // 发送给多个还是单个用户
+            if (is_array($receive['to'])) {
+
+            } else {
+                // 通过用户id知道客户端
+                $client_id = $this->redis->getClients([$receive['to']]);
+                var_dump($client_id);
+                $task['to'] = [$client_id];
+            }
+
         }
         $server->task($task);
     }

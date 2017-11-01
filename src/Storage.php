@@ -4,7 +4,7 @@
  * @Author: admin
  * @Date:   2017-10-26 11:38:13
  * @Last Modified by:   admin
- * @Last Modified time: 2017-11-01 17:23:38
+ * @Last Modified time: 2017-11-01 22:55:06
  */
 namespace Yunjuji\WebSocket;
 
@@ -95,6 +95,26 @@ class Storage
     {
         // 返回集合的内容
         return $this->redis->sMembers(self::PREFIX . ':online');
+    }
+
+    /**
+     * 批量获取客户端Id
+     * @param $users
+     * @return array
+     */
+    public function getClients($users)
+    {
+        $keys = array();
+        $ret  = array();
+        foreach ($users as $v) {
+            $keys[] = self::PREFIX . ':user:' . $v;
+        }
+        // 返回所查询键的值
+        $info = $this->redis->mget($keys);
+        foreach ($info as $v) {
+            $ret[] = json_decode($v, true);
+        }
+        return $ret;
     }
 
     /**
