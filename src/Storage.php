@@ -4,7 +4,7 @@
  * @Author: admin
  * @Date:   2017-10-26 11:38:13
  * @Last Modified by:   admin
- * @Last Modified time: 2017-11-01 23:35:07
+ * @Last Modified time: 2017-11-01 23:45:15
  */
 namespace Yunjuji\WebSocket;
 
@@ -118,6 +118,7 @@ class Storage
         // 返回所查询键的值
         $info = $this->redis->mget($keys);
 
+        echo "Storage info:";
         var_dump($info);
         echo "\n";
 

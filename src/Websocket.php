@@ -446,9 +446,8 @@ class WebSocket
 
             } else {
                 // 通过用户id知道客户端
-                $client_id = $this->storage->getClients([$receive['to']]);
-                var_dump($client_id);
-                $task['to'] = [$client_id];
+                $clients = $this->storage->getClients([$receive['to']]);
+                $task['to'] = $clients;
             }
 
         }
