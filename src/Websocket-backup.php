@@ -42,7 +42,7 @@ data : {
  */
 namespace Yunjuji\WebSocket;
 
-class WebSocket
+class WebSocketBackup
 {
     const CONNECT_TYPE    = 'connect';
     const DISCONNECT_TYPE = 'disconnect';
@@ -375,7 +375,7 @@ class WebSocket
                     'nickname' => $nickname,
                     'count'    => 1,
                     'cmd' => 'login',
-                    'fd' => $client_id,
+                    'fd' => $request->fd,
                     // 'count'    => count($this->storage->getUsers($server->connections)),
                 ], self::INIT_SELF_TYPE);
                 $this->server->task([
