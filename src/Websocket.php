@@ -435,7 +435,7 @@ class WebSocket
 
         echo "客户端id:";
         echo "\n";
-        var_dump($this->redis->getClients([$receive['to']]));
+        var_dump($this->storage->getClients([$receive['to']]));
         echo "\n";
 
         if (isset($receive['to']) && $receive['to'] != 0) {
@@ -444,7 +444,7 @@ class WebSocket
 
             } else {
                 // 通过用户id知道客户端
-                $client_id = $this->redis->getClients([$receive['to']]);
+                $client_id = $this->storage->getClients([$receive['to']]);
                 var_dump($client_id);
                 $task['to'] = [$client_id];
             }
