@@ -421,8 +421,11 @@ class WebSocket
                     $msg  = $this->buildMsg($receive['data'], 'dispatch_order');
                     break;
                 // 抢单派单
-                case 'grap_order':
-                    $msg  = $this->buildMsg($receive['data'], 'grap_order');
+                case 'grab_order':
+                    $msg  = $this->buildMsg($receive['data'], 'grab_order');
+                    echo "抢单派单数据:";
+                    var_dump($msg);
+                    echo "\n";
                     break;
                 default:
 
@@ -507,6 +510,9 @@ class WebSocket
         foreach ($clients as $fd) {
             if (!in_array($fd, $data['except'])) {
                 // 服务端往客户端发送消息
+                echo "服务端往客户端发送消息";
+                var_dump($data['data']);
+                echo "\n";
                 $this->server->push($fd, $data['data']);
             }
         }
