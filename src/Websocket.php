@@ -450,7 +450,7 @@ class WebSocket
             // 发送给多个还是单个用户
             if (is_array($receive['to'])) {
                 // 通过用户id知道客户端
-                $clients = $this->storage->getClients([$receive['to']]);
+                $clients = $this->storage->getClients($receive['to']);
                 $task['to'] = $clients;
             } else {
                 // 通过用户id知道客户端
