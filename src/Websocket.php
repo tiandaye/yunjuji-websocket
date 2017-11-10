@@ -441,20 +441,23 @@ class WebSocket
         var_dump($receive['to']);
         echo "\n";
 
-        echo "客户端id:";
-        echo "\n";
-        var_dump($this->storage->getClients([$receive['to']]));
-        echo "\n";
-
         if (isset($receive['to']) && $receive['to'] != 0) {
             // 发送给多个还是单个用户
             if (is_array($receive['to'])) {
                 // 通过用户id知道客户端
                 $clients = $this->storage->getClients($receive['to']);
+                echo "客户端ids:";
+                echo "\n";
+                echo "\n";
+                var_dump($clients);
                 $task['to'] = $clients;
             } else {
                 // 通过用户id知道客户端
                 $clients = $this->storage->getClients([$receive['to']]);
+                echo "客户端id:";
+                echo "\n";
+                echo "\n";
+                var_dump($clients);
                 $task['to'] = $clients;
             }
 
