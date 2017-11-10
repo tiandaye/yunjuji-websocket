@@ -45,6 +45,8 @@ class WebSocket
     private $config;
     // redis操作
     private $storage;
+    // 前端校验的url
+    private $frontValidateUrl = "http://127.0.0.1:8002/api/authorization";
 
     /**
      * [__construct description]
@@ -169,7 +171,7 @@ class WebSocket
 
         // 自定义鉴权
         if (isset($request->server['query_string'])) {
-            $url           = "http://127.0.0.1:8002/api/authorization";
+            $url           = $this->frontValidateUrl;
             $queryString   = urldecode($request->server['query_string']);
             $authorization = "Authorization:" . substr($queryString, strpos($queryString, "=") + 1);
             $header        = [];
