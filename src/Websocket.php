@@ -169,7 +169,7 @@ class WebSocket
 
         // 自定义鉴权
         if (isset($request->server['query_string'])) {
-            $url           = "http://127.0.0.1:8005/api/authorization";
+            $url           = "http://127.0.0.1:8002/api/authorization";
             $queryString   = urldecode($request->server['query_string']);
             $authorization = "Authorization:" . substr($queryString, strpos($queryString, "=") + 1);
             $header        = [];
@@ -397,7 +397,7 @@ class WebSocket
         // 接受的数据格式{"type":"", "data":{}}
         if (isset($receive['type']) && isset($receive['data'])) {
             echo "有type和data数据";
-        echo "\n";
+            echo "\n";
             $type = $receive['type'];
             $data = $receive['data'];
 
@@ -417,6 +417,10 @@ class WebSocket
                 // 指定派单
                 case 'dispatch_order':
                     $msg  = $this->buildMsg($receive['data'], 'dispatch_order');
+                    break;
+                // 抢单派单
+                case 'grap_order':
+                    $msg  = $this->buildMsg($receive['data'], 'grap_order');
                     break;
                 default:
 
@@ -443,7 +447,9 @@ class WebSocket
         if (isset($receive['to']) && $receive['to'] != 0) {
             // 发送给多个还是单个用户
             if (is_array($receive['to'])) {
-
+                // 通过用户id知道客户端
+                $clients = $this->storage->getClients([$receive['to']]);
+                $task['to'] = $clients;
             } else {
                 // 通过用户id知道客户端
                 $clients = $this->storage->getClients([$receive['to']]);
